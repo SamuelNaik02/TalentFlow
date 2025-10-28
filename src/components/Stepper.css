@@ -1,0 +1,181 @@
+/* Stepper Component Styles with TalentFlow Colors */
+
+.outer-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-circle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.step-indicator-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.step-indicator {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.step-indicator:hover {
+  transform: scale(1.1);
+}
+
+.step-indicator-inner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.step-indicator-inner.active-dot {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  margin: auto;
+}
+
+.step-number {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.step-connector {
+  flex: 1;
+  height: 3px;
+  background: #E0E0E0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0 8px;
+}
+
+.step-connector-inner {
+  height: 100%;
+  background: #1A3C34;
+  border-radius: 2px;
+}
+
+.step-content-default {
+  min-height: 300px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-default {
+  width: 100%;
+}
+
+.footer-container {
+  padding: 24px 0 0 0;
+  border-top: 1px solid #F0F0F0;
+}
+
+.footer-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.footer-nav.spread {
+  justify-content: space-between;
+}
+
+.footer-nav.end {
+  justify-content: flex-end;
+}
+
+.back-button,
+.next-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.back-button {
+  background: white;
+  color: #666666;
+  border: 1px solid #E0E0E0;
+}
+
+.back-button:hover {
+  background: #F8F9FA;
+  border-color: #1A3C34;
+  color: #1A3C34;
+}
+
+.next-button {
+  background: #1A3C34;
+  color: white;
+}
+
+.next-button:hover {
+  background: #0F2A22;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 60, 52, 0.3);
+}
+
+.next-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .step-indicator-inner {
+    width: 40px;
+    height: 40px;
+  }
+
+  .step-number {
+    font-size: 14px;
+  }
+
+  .check-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .step-indicator-row {
+    gap: 8px;
+  }
+
+  .back-button,
+  .next-button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+

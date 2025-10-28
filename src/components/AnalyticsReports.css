@@ -1,0 +1,338 @@
+/* Analytics & Reports Styles */
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E0E0E0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.metric-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1A3C34;
+  margin: 0 0 4px 0;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E0E0E0;
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.chart-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1A3C34;
+  margin: 0;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+}
+
+.chart-period {
+  font-size: 12px;
+  color: #999999;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chart-content {
+  min-height: 200px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.simple-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 180px;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.chart-bar {
+  flex: 1;
+  min-height: 4px;
+  border-radius: 2px 2px 0 0;
+  transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+  opacity: 0.8;
+}
+
+.sources-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.source-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.source-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  min-width: 80px;
+}
+
+.source-bar {
+  flex: 1;
+  height: 8px;
+  background: #F0F0F0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.source-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.source-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666666;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  min-width: 40px;
+  text-align: right;
+}
+
+.jobs-table {
+  width: 100%;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 2px solid #F0F0F0;
+  font-weight: 600;
+  color: #666666;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #F0F0F0;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.table-row:hover {
+  background: #F8F9FA;
+  border-radius: 6px;
+  margin: 0 -12px;
+  padding: 16px 12px;
+}
+
+.job-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+}
+
+.job-applications,
+.job-hired {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A3C34;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+  text-align: center;
+}
+
+.job-status {
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Glacial Indifference', Arial, sans-serif;
+}
+
+.status-badge.active {
+  background: #E8F5E8;
+  color: #2E7D32;
+}
+
+.status-badge.closed {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.status-badge.pending {
+  background: #FFF3E0;
+  color: #F57C00;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .chart-card {
+    grid-column: 1 / -1;
+  }
+  
+  .metric-card {
+    padding: 20px;
+  }
+  
+  .metric-value {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .metric-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .metric-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .metric-value {
+    font-size: 20px;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .table-row {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #F8F9FA;
+    border-radius: 8px;
+    border: none;
+  }
+  
+  .job-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .job-applications,
+  .job-hired,
+  .job-status {
+    display: inline-block;
+    margin-right: 16px;
+    font-size: 12px;
+  }
+  
+  .job-applications::before {
+    content: "Applications: ";
+    font-weight: 500;
+    color: #666666;
+  }
+  
+  .job-hired::before {
+    content: "Hired: ";
+    font-weight: 500;
+    color: #666666;
+  }
+  
+  .job-status::before {
+    content: "Status: ";
+    font-weight: 500;
+    color: #666666;
+  }
+}
+
+/* Hide scrollbar */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
