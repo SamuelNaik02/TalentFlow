@@ -2,6 +2,8 @@
 
 A comprehensive React-based hiring platform for HR teams to manage jobs, candidates, and assessments.
 
+**Created by:** SamuelNaik02
+
 ## 🚀 Features
 
 - **Jobs Management** - Create, edit, archive, and reorder job postings
