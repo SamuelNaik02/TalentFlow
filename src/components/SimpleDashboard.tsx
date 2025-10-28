@@ -259,6 +259,46 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   </p>
                 </div>
 
+                {/* Team Chat */}
+                <div 
+                  onClick={() => navigate('/chat')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    💬 Team Chat
+                  </h4>
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Real-time collaboration and communication with your team.
+                  </p>
+                </div>
+
                 {/* Analytics & Reports */}
                 <div 
                   onClick={() => navigate('/analytics')}

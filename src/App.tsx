@@ -10,6 +10,7 @@ import JobsManagement from './components/JobsManagement'
 import CandidatesPipeline from './components/CandidatesPipeline'
 import AssessmentBuilder from './components/AssessmentBuilder'
 import AnalyticsReports from './components/AnalyticsReports'
+import TeamChat from './components/TeamChat'
 // import { initializeDatabase } from './db'
 import './App.css'
 
@@ -93,6 +94,16 @@ function App() {
             element={
               isLoggedIn ? (
                 <AnalyticsReports onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/chat" 
+            element={
+              isLoggedIn ? (
+                <TeamChat onLogout={handleLogout} />
               ) : (
                 <Navigate to="/login" replace />
               )
