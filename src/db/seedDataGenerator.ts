@@ -105,7 +105,7 @@ function generateJob(id: number): Job {
     salary: {
       min: 80000 + Math.floor(Math.random() * 100000),
       max: 150000 + Math.floor(Math.random() * 150000),
-      currency: 'USD'
+      currency: 'INR'
     },
     createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Pause, Settings, BarChart3, Clock, CheckCircle, XCircle, Plus, Search, Filter, Copy, Trash2 } from 'lucide-react';
 import Shuffle from './Shuffle';
+import Stepper, { Step } from './Stepper';
 
 const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -18,6 +19,15 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
   });
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [showNewWorkflowModal, setShowNewWorkflowModal] = useState(false);
+  const [newWorkflow, setNewWorkflow] = useState({
+    name: '',
+    description: '',
+    category: 'recruitment',
+    trigger: 'new_candidate',
+    status: 'draft'
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
@@ -147,6 +157,41 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
     } catch (error) {
       console.error('Failed to toggle workflow:', error);
     }
+  };
+
+  const handleCreateWorkflow = () => {
+    const errors: Record<string, string> = {};
+    if (!newWorkflow.name.trim()) errors.name = 'Name is required';
+    if (!newWorkflow.description.trim()) errors.description = 'Description is required';
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    const created = {
+      id: String(Date.now()),
+      name: newWorkflow.name.trim(),
+      description: newWorkflow.description.trim(),
+      status: newWorkflow.status,
+      trigger: {
+        type: newWorkflow.trigger,
+        conditions: []
+      },
+      actions: [],
+      createdAt: new Date(),
+      lastRun: null,
+      nextRun: null,
+      runCount: 0,
+      successRate: 0,
+      isEnabled: false,
+      category: newWorkflow.category
+    };
+    setWorkflows([created, ...workflows]);
+    setStats(prev => ({
+      ...prev,
+      totalWorkflows: prev.totalWorkflows + 1
+    }));
+    setShowNewWorkflowModal(false);
+    setNewWorkflow({ name: '', description: '', category: 'recruitment', trigger: 'new_candidate', status: 'draft' });
+    setFormErrors({});
   };
 
   const runWorkflow = async (workflowId: string) => {
@@ -603,159 +648,111 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 border: '1px solid #E0E0E0',
                 borderRadius: '8px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                padding: '12px 0',
-                minWidth: '180px',
-                zIndex: 1000
+                padding: '20px',
+                width: '400px',
+                zIndex: 1000,
+                maxHeight: '80vh',
+                overflowY: 'auto'
               }}>
-                <button 
-                  onClick={() => navigate('/dashboard')}
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: '#222222', 
+                  margin: '0 0 20px 0',
+                  textAlign: 'center'
+                }}>
+                  Account Settings
+                </h3>
+                
+                {/* Profile Settings */}
+                <div 
+                  onClick={() => navigate('/profile')}
                   style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
                     cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                    transition: 'all 0.3s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
+                  }}
                 >
-                  Dashboard
-                </button>
-                <button 
-                  onClick={() => navigate('/jobs')}
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Profile Settings
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Update your personal information and preferences.
+                  </p>
+                </div>
+
+                
+
+              {/* Logout */}
+                <div 
+                onClick={() => { onLogout(); navigate('/login'); }}
                   style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
+                    padding: '16px 0',
                     cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                    transition: 'all 0.3s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Jobs
-                </button>
-                <button 
-                  onClick={() => navigate('/candidates')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                  const h4 = e.currentTarget.querySelector('h4');
+                  const p = e.currentTarget.querySelector('p');
+                  if (h4) h4.style.color = '#F06B4E';
+                  if (p) p.style.color = '#F06B4E';
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Candidates
-                </button>
-                <button 
-                  onClick={() => navigate('/assessments')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                  const h4 = e.currentTarget.querySelector('h4');
+                  const p = e.currentTarget.querySelector('p');
+                  if (h4) h4.style.color = '#222222';
+                  if (p) p.style.color = '#666666';
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
                 >
-                  Assessments
-                </button>
-                <button 
-                  onClick={() => navigate('/collaboration')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Team Collaboration
-                </button>
-                <button 
-                  onClick={() => navigate('/automation')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Workflow Automation
-                </button>
-                <button 
-                  onClick={() => navigate('/analytics')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Analytics
-                </button>
-                <div style={{ 
-                  height: '1px', 
-                  background: '#E0E0E0', 
-                  margin: '8px 0' 
-                }}></div>
-                <button 
-                  onClick={onLogout}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#F06B4E',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
                   Logout
-                </button>
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                  Sign out of your account.
+                  </p>
+                </div>
+
               </div>
             )}
           </div>
@@ -984,48 +981,47 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
           }}>
             <div>
               <h1 style={{ 
-                fontSize: '24px', 
-                color: '#222222', 
-                marginBottom: '16px',
-                fontFamily: '"Montserrat", Arial, sans-serif',
-                fontWeight: '600'
+                fontSize: '32px', 
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                fontFamily: '"Montserrat", Arial, sans-serif'
               }}>
-                Workflow Automation
+                <span style={{ color: '#F05A3C' }}>WORKFLOW</span>
+                <span style={{ color: '#1A3C34' }}> Automation</span>
               </h1>
               <p style={{ 
                 fontSize: '16px', 
                 color: '#666666', 
-                lineHeight: '1.5',
-                fontFamily: '"Inter", Arial, sans-serif',
-                fontWeight: '400',
-                margin: '0'
+                lineHeight: '1.6',
+                margin: 0,
+                fontFamily: '"Inter", Arial, sans-serif'
               }}>
                 Automate repetitive tasks and streamline workflows
               </p>
             </div>
-            <button style={{ 
-              background: 'linear-gradient(135deg, #F05A3C 0%, #e04a2b 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '12px 24px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease',
-              fontFamily: '"Montserrat", Arial, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(240, 90, 60, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            <button 
+              onClick={() => setShowNewWorkflowModal(true)}
+              style={{ 
+                background: '#F05A3C',
+                color: 'white',
+                border: '1px solid white',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                fontFamily: '"Inter", Arial, sans-serif'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e04a2b';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#F05A3C';
+              }}
             >
               <Plus size={16} />
               New Workflow
@@ -1078,13 +1074,24 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
               onChange={(e) => setFilterCategory(e.target.value)}
               style={{
                 padding: '12px 16px',
-                border: '2px solid #e0e0e0',
+                border: '2px solid #E0E0E0',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontFamily: '"Inter", Arial, sans-serif',
                 background: 'white',
+                color: '#333333',
                 cursor: 'pointer',
-                minWidth: '150px'
+                minWidth: '150px',
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#F05A3C';
+                e.target.style.boxShadow = '0 0 0 3px rgba(240, 90, 60, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E0E0E0';
+                e.target.style.boxShadow = 'none';
               }}
             >
               <option value="all">All Categories</option>
@@ -1380,6 +1387,325 @@ const WorkflowAutomation: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
           )}
         </div>
       </div>
+
+      {/* New Workflow Modal */}
+      {showNewWorkflowModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+        onClick={() => setShowNewWorkflowModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            width: '90%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              padding: '24px',
+              borderBottom: '1px solid #E0E0E0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1A3C34',
+                margin: 0,
+                fontFamily: '"Montserrat", Arial, sans-serif'
+              }}>
+                Create New Workflow
+              </h2>
+              <button
+                onClick={() => setShowNewWorkflowModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666666',
+                  padding: '4px 8px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <Stepper
+              initialStep={1}
+              backButtonText="Back"
+              nextButtonText="Next"
+              footerClassName=""
+              onStepChange={() => {}}
+              onFinalStepCompleted={handleCreateWorkflow}
+              backButtonProps={{
+                style: {
+                  background: 'none',
+                  border: '1px solid #E0E0E0',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  color: '#666666',
+                  fontFamily: '"Inter", Arial, sans-serif'
+                }
+              }}
+              nextButtonProps={{
+                style: {
+                  background: '#F05A3C',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontFamily: '"Inter", Arial, sans-serif'
+                }
+              }}
+            >
+              {/* Step 1: Basic Information */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Basic Information
+                  </h3>
+                  
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Workflow Name</label>
+                    <input
+                      type="text"
+                      value={newWorkflow.name}
+                      onChange={(e) => setNewWorkflow({ ...newWorkflow, name: e.target.value })}
+                      placeholder="e.g., New Candidate Welcome"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        color: '#222222'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#F05A3C'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    />
+                    {formErrors.name && <div style={{ color: '#D32F2F', fontSize: '12px', marginTop: '6px', fontFamily: '"Inter", Arial, sans-serif' }}>{formErrors.name}</div>}
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Category</label>
+                    <select
+                      value={newWorkflow.category}
+                      onChange={(e) => setNewWorkflow({ ...newWorkflow, category: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        cursor: 'pointer'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#F05A3C'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    >
+                      <option value="recruitment">Recruitment</option>
+                      <option value="onboarding">Onboarding</option>
+                      <option value="communication">Communication</option>
+                      <option value="data_management">Data Management</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Description</label>
+                    <textarea
+                      value={newWorkflow.description}
+                      onChange={(e) => setNewWorkflow({ ...newWorkflow, description: e.target.value })}
+                      placeholder="Describe what this workflow does..."
+                      rows={4}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        resize: 'vertical',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        color: '#222222'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#F05A3C'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    />
+                    {formErrors.description && <div style={{ color: '#D32F2F', fontSize: '12px', marginTop: '6px', fontFamily: '"Inter", Arial, sans-serif' }}>{formErrors.description}</div>}
+                  </div>
+                </div>
+              </Step>
+
+              {/* Step 2: Configuration */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Configuration
+                  </h3>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Trigger</label>
+                      <select
+                        value={newWorkflow.trigger}
+                        onChange={(e) => setNewWorkflow({ ...newWorkflow, trigger: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          background: 'white',
+                          cursor: 'pointer'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#F05A3C'}
+                        onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                      >
+                        <option value="new_candidate">New Candidate</option>
+                        <option value="assessment_completed">Assessment Completed</option>
+                        <option value="schedule">Schedule</option>
+                        <option value="manual">Manual</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Status</label>
+                      <select
+                        value={newWorkflow.status}
+                        onChange={(e) => setNewWorkflow({ ...newWorkflow, status: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          background: 'white',
+                          cursor: 'pointer'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#F05A3C'}
+                        onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="active">Active</option>
+                        <option value="paused">Paused</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </Step>
+
+              {/* Step 3: Review & Submit */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Review & Submit
+                  </h3>
+                  
+                  <div style={{
+                    background: '#F8F9FA',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Workflow Name:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newWorkflow.name || 'Not specified'}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Category:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newWorkflow.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Trigger:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newWorkflow.trigger.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Status:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newWorkflow.status.charAt(0).toUpperCase() + newWorkflow.status.slice(1)}
+                      </p>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Description:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newWorkflow.description || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {formErrors.name || formErrors.description ? (
+                    <div style={{
+                      background: '#FFEBEE',
+                      border: '1px solid #F44336',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      marginBottom: '20px'
+                    }}>
+                      <p style={{
+                        color: '#F44336',
+                        fontSize: '14px',
+                        margin: 0,
+                        fontFamily: '"Inter", Arial, sans-serif'
+                      }}>
+                        Please go back and fill in all required fields.
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Step>
+            </Stepper>
+          </div>
+        </div>
+      )}
       </div>
     </>
   );

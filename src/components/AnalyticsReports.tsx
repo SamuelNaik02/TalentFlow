@@ -14,6 +14,7 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const metricsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,12 +71,104 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
     ]
   };
 
+  // Applications Trend chart state
+  const appChartRef = useRef<HTMLDivElement>(null);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
   const periods = [
     { value: '7d', label: 'Last 7 days' },
     { value: '30d', label: 'Last 30 days' },
     { value: '90d', label: 'Last 90 days' },
     { value: '1y', label: 'Last year' }
   ];
+
+  const exportReport = async () => {
+    setIsExporting(true);
+    try {
+      // Generate CSV content
+      const csvLines: string[] = [];
+      
+      // Header
+      csvLines.push('TalentFlow Analytics Report');
+      csvLines.push(`Generated: ${new Date().toLocaleString()}`);
+      csvLines.push(`Period: ${periods.find(p => p.value === selectedPeriod)?.label || selectedPeriod}`);
+      csvLines.push('');
+      
+      // Overview Metrics
+      csvLines.push('OVERVIEW METRICS');
+      csvLines.push('Metric,Value');
+      csvLines.push(`Total Jobs,${analyticsData.overview.totalJobs}`);
+      csvLines.push(`Total Candidates,${analyticsData.overview.totalCandidates}`);
+      csvLines.push(`Hired This Month,${analyticsData.overview.hiredThisMonth}`);
+      csvLines.push(`Success Rate,${analyticsData.overview.successRate}%`);
+      csvLines.push(`Avg Time to Hire,${analyticsData.overview.avgTimeToHire} days`);
+      csvLines.push(`Cost per Hire,₹${analyticsData.overview.costPerHire.toLocaleString()}`);
+      csvLines.push('');
+      
+      // Applications Trend
+      csvLines.push('APPLICATIONS TREND (Last 12 Months)');
+      csvLines.push('Month,Applications');
+      analyticsData.trends.applications.forEach((count, index) => {
+        csvLines.push(`${months[index]},${count}`);
+      });
+      csvLines.push('');
+      
+      // Hires Trend
+      csvLines.push('HIRES TREND (Last 12 Months)');
+      csvLines.push('Month,Hires');
+      analyticsData.trends.hires.forEach((count, index) => {
+        csvLines.push(`${months[index]},${count}`);
+      });
+      csvLines.push('');
+      
+      // Interviews Trend
+      csvLines.push('INTERVIEWS TREND (Last 12 Months)');
+      csvLines.push('Month,Interviews');
+      analyticsData.trends.interviews.forEach((count, index) => {
+        csvLines.push(`${months[index]},${count}`);
+      });
+      csvLines.push('');
+      
+      // Top Job Sources
+      csvLines.push('TOP JOB SOURCES');
+      csvLines.push('Source,Candidates,Percentage');
+      analyticsData.sources.forEach(source => {
+        csvLines.push(`${source.name},${source.candidates},${source.percentage}%`);
+      });
+      csvLines.push('');
+      
+      // Top Performing Jobs
+      csvLines.push('TOP PERFORMING JOBS');
+      csvLines.push('Job Title,Applications,Hired,Status');
+      analyticsData.topJobs.forEach(job => {
+        csvLines.push(`${job.title},${job.applications},${job.hired},${job.status}`);
+      });
+      
+      // Create blob and download
+      const csvContent = csvLines.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `TalentFlow_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success message
+      setTimeout(() => {
+        setIsExporting(false);
+        alert('Report exported successfully!');
+      }, 500);
+    } catch (error) {
+      console.error('Error exporting report:', error);
+      setIsExporting(false);
+      alert('Failed to export report. Please try again.');
+    }
+  };
 
   return (
     <div style={{ 
@@ -495,6 +588,7 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                 
                 {/* Profile Settings */}
                 <div 
+                  onClick={() => navigate('/profile')}
                   style={{
                     padding: '16px 0',
                     borderBottom: '1px solid #E0E0E0',
@@ -503,13 +597,17 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
                   }}
                 >
                   <h4 style={{ 
@@ -532,44 +630,7 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                   </p>
                 </div>
 
-                {/* Notifications */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    borderBottom: '1px solid #E0E0E0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Notifications
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Configure your notification preferences and alerts.
-                  </p>
-                </div>
+                
 
                 {/* Log Out */}
                 <div 
@@ -672,25 +733,37 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                 </option>
               ))}
             </select>
-            <button style={{
-              background: '#1A3C34',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontFamily: 'Glacial Indifference, Arial, sans-serif',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#0F2A22'}
-            onMouseLeave={(e) => e.currentTarget.style.background = '#1A3C34'}
+            <button 
+              onClick={exportReport}
+              disabled={isExporting}
+              style={{
+                background: isExporting ? '#CCCCCC' : '#1A3C34',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontFamily: 'Glacial Indifference, Arial, sans-serif',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                opacity: isExporting ? 0.7 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!isExporting) {
+                  e.currentTarget.style.background = '#0F2A22';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isExporting) {
+                  e.currentTarget.style.background = '#1A3C34';
+                }
+              }}
             >
-              📊 Export Report
+              {isExporting ? '⏳ Exporting...' : '📊 Export Report'}
             </button>
           </div>
         </div>
@@ -891,24 +964,151 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
           marginBottom: '32px' 
         }}>
           {/* Applications Trend Chart */}
-          <div className="chart-card">
+          <div className="chart-card" ref={appChartRef}>
             <div className="chart-header">
               <h3>Applications Trend</h3>
               <div className="chart-period">Last 12 months</div>
             </div>
-            <div className="chart-content">
-              <div className="simple-chart">
-                {analyticsData.trends.applications.map((value, index) => (
-                  <div 
-                    key={index}
-                    className="chart-bar"
-                    style={{ 
-                      height: `${(value / 250) * 100}%`,
-                      background: index === analyticsData.trends.applications.length - 1 ? '#1A3C34' : '#E0E0E0'
-                    }}
-                  ></div>
-                ))}
-              </div>
+            <div className="chart-content" style={{ position: 'relative' }}>
+              {(() => {
+                const data = analyticsData.trends.applications;
+                const width = 760; // visual width inside viewBox
+                const height = 320; // visual height inside viewBox
+                const padding = { left: 48, right: 16, top: 16, bottom: 40 };
+                const innerW = width - padding.left - padding.right;
+                const innerH = height - padding.top - padding.bottom;
+                const maxVal = Math.max(...data) * 1.1;
+                const minVal = 0;
+                const stepX = innerW / (data.length - 1);
+                const x = (i: number) => padding.left + i * stepX;
+                const y = (v: number) => padding.top + innerH - ((v - minVal) / (maxVal - minVal)) * innerH;
+                const points = data.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+                const areaPath = `M ${padding.left},${padding.top + innerH} L ${points} L ${padding.left + innerW},${padding.top + innerH} Z`;
+                const gridYVals = [0, 0.25, 0.5, 0.75, 1];
+
+                // Tooltip calculations
+                const handleMove = (evt: React.MouseEvent<SVGSVGElement>) => {
+                  const rect = (evt.currentTarget as SVGSVGElement).getBoundingClientRect();
+                  const mouseX = evt.clientX - rect.left - padding.left;
+                  const idx = Math.max(0, Math.min(data.length - 1, Math.round(mouseX / stepX)));
+                  setHoverIndex(idx);
+                };
+                const handleLeave = () => setHoverIndex(null);
+
+                return (
+                  <svg 
+                    width="100%" 
+                    height="360" 
+                    viewBox={`0 0 ${width} ${height}`} 
+                    style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12 }}
+                    onMouseMove={handleMove}
+                    onMouseLeave={handleLeave}
+                  >
+                    <defs>
+                      <linearGradient id="appsArea" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#1A3C34" stopOpacity="0.18" />
+                        <stop offset="100%" stopColor="#1A3C34" stopOpacity="0.03" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* grid horizontal */}
+                    {gridYVals.map((t, i) => (
+                      <line
+                        key={`gy-${i}`}
+                        x1={padding.left}
+                        y1={padding.top + innerH * (1 - t)}
+                        x2={padding.left + innerW}
+                        y2={padding.top + innerH * (1 - t)}
+                        stroke="#EEE"
+                      />
+                    ))}
+
+                    {/* axes */}
+                    <line x1={padding.left} y1={padding.top + innerH} x2={padding.left + innerW} y2={padding.top + innerH} stroke="#CFCFCF" />
+                    <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + innerH} stroke="#CFCFCF" />
+
+                    {/* area */}
+                    <path d={areaPath} fill="url(#appsArea)" />
+
+                    {/* line */}
+                    <polyline
+                      fill="none"
+                      stroke="#1A3C34"
+                      strokeWidth={3}
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      points={points}
+                    />
+
+                    {/* x labels */}
+                    {data.map((_, i) => (
+                      <text
+                        key={`xl-${i}`}
+                        x={x(i)}
+                        y={padding.top + innerH + 24}
+                        fontSize={12}
+                        fill="#888"
+                        textAnchor="middle"
+                        fontFamily='"Inter", Arial, sans-serif'
+                      >
+                        {months[i]}
+                      </text>
+                    ))}
+
+                    {/* y labels */}
+                    {gridYVals.map((t, i) => (
+                      <text
+                        key={`yl-${i}`}
+                        x={padding.left - 10}
+                        y={padding.top + innerH * (1 - t) + 4}
+                        fontSize={12}
+                        fill="#888"
+                        textAnchor="end"
+                        fontFamily='"Inter", Arial, sans-serif'
+                      >
+                        {Math.round((minVal + (maxVal - minVal) * t)).toString()}
+                      </text>
+                    ))}
+
+                    {/* hover marker */}
+                    {hoverIndex !== null && (
+                      <g>
+                        <line
+                          x1={x(hoverIndex)}
+                          y1={padding.top}
+                          x2={x(hoverIndex)}
+                          y2={padding.top + innerH}
+                          stroke="#F0D4CB"
+                          strokeDasharray="4,4"
+                        />
+                        <circle cx={x(hoverIndex)} cy={y(data[hoverIndex])} r={5} fill="#1A3C34" />
+                      </g>
+                    )}
+                  </svg>
+                );
+              })()}
+
+              {hoverIndex !== null && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `calc(${(hoverIndex / (analyticsData.trends.applications.length - 1)) * 100}% - 60px)`,
+                    top: 8,
+                    background: 'white',
+                    border: '1px solid #E0E0E0',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    borderRadius: 8,
+                    padding: '8px 10px',
+                    pointerEvents: 'none',
+                    minWidth: 120
+                  }}
+                >
+                  <div style={{ fontFamily: '"Montserrat", Arial, sans-serif', fontSize: 12, color: '#999', marginBottom: 4 }}>{months[hoverIndex]}</div>
+                  <div style={{ fontFamily: '"Inter", Arial, sans-serif', fontSize: 14, color: '#1A3C34', fontWeight: 600 }}>
+                    {analyticsData.trends.applications[hoverIndex]} applications
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

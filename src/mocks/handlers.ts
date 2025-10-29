@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import type { Job, Candidate, Assessment, AssessmentResponse, PaginatedResponse } from '../types';
 import { db } from '../db/database';
 
@@ -12,6 +12,11 @@ const shouldError = () => Math.random() < 0.1; // 10% error rate
 const generateId = () => `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 export const handlers = [
+  // Passthrough handler for external APIs (like Gemini)
+  http.all('https://generativelanguage.googleapis.com/*', () => {
+    return passthrough();
+  }),
+  
   // Jobs endpoints
   http.get('/api/jobs', async ({ request }) => {
     await delay(200 + Math.random() * 1000); // 200-1200ms delay

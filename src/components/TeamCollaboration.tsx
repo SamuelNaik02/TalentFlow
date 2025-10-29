@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, MessageSquare, FileText, ThumbsUp, ThumbsDown, Clock, CheckCircle, AlertCircle, Plus, Search, Filter } from 'lucide-react';
 import Shuffle from './Shuffle';
+import Stepper, { Step } from './Stepper';
 
 const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -12,6 +13,16 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [showNewItemModal, setShowNewItemModal] = useState(false);
+  const [newItem, setNewItem] = useState({
+    title: '',
+    type: 'candidate_review',
+    priority: 'medium',
+    status: 'pending',
+    description: '',
+    dueDate: '' as string
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
@@ -124,6 +135,34 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
         case 'low': return '#00695C'; // Teal dark green
       default: return '#666';
     }
+  };
+
+  const handleCreateItem = () => {
+    const errors: Record<string, string> = {};
+    if (!newItem.title.trim()) errors.title = 'Title is required';
+    if (!newItem.description.trim()) errors.description = 'Description is required';
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    const created = {
+      id: String(Date.now()),
+      title: newItem.title.trim(),
+      type: newItem.type,
+      status: newItem.status,
+      priority: newItem.priority,
+      assignedTo: [],
+      createdBy: '1',
+      createdAt: new Date(),
+      dueDate: newItem.dueDate ? new Date(newItem.dueDate) : new Date(Date.now() + 24*60*60*1000),
+      description: newItem.description.trim(),
+      comments: [],
+      attachments: [],
+      votes: []
+    };
+    setCollaborationItems([created, ...collaborationItems]);
+    setShowNewItemModal(false);
+    setNewItem({ title: '', type: 'candidate_review', priority: 'medium', status: 'pending', description: '', dueDate: '' });
+    setFormErrors({});
   };
 
   const formatTime = (date: Date) => {
@@ -545,159 +584,111 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                 border: '1px solid #E0E0E0',
                 borderRadius: '8px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                padding: '12px 0',
-                minWidth: '180px',
-                zIndex: 1000
+                padding: '20px',
+                width: '400px',
+                zIndex: 1000,
+                maxHeight: '80vh',
+                overflowY: 'auto'
               }}>
-                <button 
-                  onClick={() => navigate('/dashboard')}
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: '#222222', 
+                  margin: '0 0 20px 0',
+                  textAlign: 'center'
+                }}>
+                  Account Settings
+                </h3>
+                
+                {/* Profile Settings */}
+                <div 
+                  onClick={() => navigate('/profile')}
                   style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
                     cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                    transition: 'all 0.3s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
+                  }}
                 >
-                  Dashboard
-                </button>
-                <button 
-                  onClick={() => navigate('/jobs')}
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Profile Settings
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Update your personal information and preferences.
+                  </p>
+                </div>
+
+                
+
+              {/* Logout */}
+                <div 
+                onClick={() => { onLogout(); navigate('/login'); }}
                   style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
+                    padding: '16px 0',
                     cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                    transition: 'all 0.3s ease'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Jobs
-                </button>
-                <button 
-                  onClick={() => navigate('/candidates')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                  const h4 = e.currentTarget.querySelector('h4');
+                  const p = e.currentTarget.querySelector('p');
+                  if (h4) h4.style.color = '#F06B4E';
+                  if (p) p.style.color = '#F06B4E';
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Candidates
-                </button>
-                <button 
-                  onClick={() => navigate('/assessments')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                  const h4 = e.currentTarget.querySelector('h4');
+                  const p = e.currentTarget.querySelector('p');
+                  if (h4) h4.style.color = '#222222';
+                  if (p) p.style.color = '#666666';
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
                 >
-                  Assessments
-                </button>
-                <button 
-                  onClick={() => navigate('/collaboration')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Team Collaboration
-                </button>
-                <button 
-                  onClick={() => navigate('/automation')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Workflow Automation
-                </button>
-                <button 
-                  onClick={() => navigate('/analytics')}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#222222',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
-                  Analytics
-                </button>
-                <div style={{ 
-                  height: '1px', 
-                  background: '#E0E0E0', 
-                  margin: '8px 0' 
-                }}></div>
-                <button 
-                  onClick={onLogout}
-                  style={{
-                    width: '100%',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#F06B4E',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
                   Logout
-                </button>
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                  Sign out of your account.
+                  </p>
+                </div>
+
               </div>
             )}
           </div>
@@ -729,48 +720,47 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           }}>
             <div>
               <h1 style={{ 
-                fontSize: '24px', 
-                color: '#222222', 
-                marginBottom: '16px',
-                fontFamily: '"Montserrat", Arial, sans-serif',
-                fontWeight: '600'
+                fontSize: '32px', 
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                fontFamily: '"Montserrat", Arial, sans-serif'
               }}>
-                Team Collaboration
+                <span style={{ color: '#F05A3C' }}>Team</span>
+                <span style={{ color: '#1A3C34' }}> Collaboration</span>
               </h1>
               <p style={{ 
                 fontSize: '16px', 
                 color: '#666666', 
-                lineHeight: '1.5',
-                fontFamily: '"Inter", Arial, sans-serif',
-                fontWeight: '400',
-                margin: '0'
+                lineHeight: '1.6',
+                margin: 0,
+                fontFamily: '"Inter", Arial, sans-serif'
               }}>
                 Collaborate with your team on hiring decisions
               </p>
             </div>
-            <button style={{ 
-              background: 'linear-gradient(135deg, #1a3c34 0%, #2d5a4f 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '12px 24px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease',
-              fontFamily: '"Montserrat", Arial, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(26, 60, 52, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            <button 
+              onClick={() => setShowNewItemModal(true)}
+              style={{ 
+                background: '#1A3C34',
+                color: 'white',
+                border: '1px solid white',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                fontFamily: '"Inter", Arial, sans-serif'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#0F2A22';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#1A3C34';
+              }}
             >
               <Plus size={16} />
               New Item
@@ -823,13 +813,24 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
               onChange={(e) => setFilterStatus(e.target.value)}
               style={{
                 padding: '12px 16px',
-                border: '2px solid #e0e0e0',
+                border: '2px solid #E0E0E0',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontFamily: '"Inter", Arial, sans-serif',
                 background: 'white',
+                color: '#333333',
                 cursor: 'pointer',
-                minWidth: '150px'
+                minWidth: '150px',
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#1A3C34';
+                e.target.style.boxShadow = '0 0 0 3px rgba(26, 60, 52, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E0E0E0';
+                e.target.style.boxShadow = 'none';
               }}
             >
               <option value="all">All Status</option>
@@ -909,7 +910,7 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                   </div>
                   
                   <h3 style={{ 
-                    fontSize: '16px', 
+                    fontSize: '18px', 
                     fontWeight: '600', 
                     color: '#222222', 
                     margin: '0 0 8px 0',
@@ -1044,6 +1045,362 @@ const TeamCollaboration: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           )}
         </div>
       </div>
+
+      {/* New Item Modal */}
+      {showNewItemModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+        onClick={() => setShowNewItemModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            width: '90%',
+            maxWidth: '600px',
+            padding: '24px',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1A3C34',
+                margin: 0,
+                fontFamily: '"Montserrat", Arial, sans-serif'
+              }}>
+                Create New Collaboration Item
+              </h2>
+              <button
+                onClick={() => setShowNewItemModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666666',
+                  padding: '4px 8px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <Stepper
+              initialStep={1}
+              backButtonText="Back"
+              nextButtonText="Next"
+              footerClassName="team-collab-stepper"
+              onStepChange={() => {}}
+              onFinalStepCompleted={handleCreateItem}
+              backButtonProps={{
+                style: {
+                  background: 'none',
+                  border: '1px solid #E0E0E0',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  color: '#666666',
+                  fontFamily: '"Inter", Arial, sans-serif'
+                }
+              }}
+              nextButtonProps={{
+                style: {
+                  background: '#F05A3C',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontFamily: '"Inter", Arial, sans-serif',
+                  transition: 'background-color 0.2s ease'
+                }
+              }}
+            >
+              {/* Step 1: Basic Information */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Basic Information
+                  </h3>
+                  
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Title</label>
+                    <input
+                      type="text"
+                      value={newItem.title}
+                      onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+                      placeholder="e.g., Review candidate for Senior Developer"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        color: '#222222'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    />
+                    {formErrors.title && <div style={{ color: '#D32F2F', fontSize: '12px', marginTop: '6px', fontFamily: '"Inter", Arial, sans-serif' }}>{formErrors.title}</div>}
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Type</label>
+                    <select
+                      value={newItem.type}
+                      onChange={(e) => setNewItem({ ...newItem, type: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        cursor: 'pointer'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    >
+                      <option value="candidate_review">Candidate Review</option>
+                      <option value="job_approval">Job Approval</option>
+                      <option value="interview_feedback">Interview Feedback</option>
+                      <option value="offer_review">Offer Review</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Description</label>
+                    <textarea
+                      value={newItem.description}
+                      onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                      placeholder="Add details so your team knows what to do..."
+                      rows={4}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        resize: 'vertical',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        color: '#222222'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    />
+                    {formErrors.description && <div style={{ color: '#D32F2F', fontSize: '12px', marginTop: '6px', fontFamily: '"Inter", Arial, sans-serif' }}>{formErrors.description}</div>}
+                  </div>
+                </div>
+              </Step>
+
+              {/* Step 2: Settings */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Settings
+                  </h3>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Priority</label>
+                      <select
+                        value={newItem.priority}
+                        onChange={(e) => setNewItem({ ...newItem, priority: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          background: 'white',
+                          cursor: 'pointer'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                        onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                      >
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Status</label>
+                      <select
+                        value={newItem.status}
+                        onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          background: 'white',
+                          cursor: 'pointer'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                        onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#222222', marginBottom: '8px', fontFamily: '"Inter", Arial, sans-serif' }}>Due Date</label>
+                    <input
+                      type="date"
+                      value={newItem.dueDate}
+                      onChange={(e) => setNewItem({ ...newItem, dueDate: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '1px solid #E0E0E0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontFamily: '"Inter", Arial, sans-serif',
+                        background: 'white',
+                        color: '#222222'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#1A3C34'}
+                      onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                    />
+                  </div>
+                </div>
+              </Step>
+
+              {/* Step 3: Review & Submit */}
+              <Step>
+                <div style={{ padding: '20px 0' }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#1A3C34',
+                    marginBottom: '24px',
+                    fontFamily: '"Montserrat", Arial, sans-serif'
+                  }}>
+                    Review & Submit
+                  </h3>
+                  
+                  <div style={{
+                    background: '#F8F9FA',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Title:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newItem.title || 'Not specified'}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Type:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newItem.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Priority:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newItem.priority.charAt(0).toUpperCase() + newItem.priority.slice(1)}
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Status:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newItem.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </p>
+                    </div>
+                    {newItem.dueDate && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Due Date:</strong>
+                        <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                          {new Date(newItem.dueDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <strong style={{ color: '#222222', fontFamily: '"Inter", Arial, sans-serif' }}>Description:</strong>
+                      <p style={{ color: '#666666', margin: '4px 0 0 0', fontFamily: '"Inter", Arial, sans-serif' }}>
+                        {newItem.description || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {formErrors.title || formErrors.description ? (
+                    <div style={{
+                      background: '#FFEBEE',
+                      border: '1px solid #F44336',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      marginBottom: '20px'
+                    }}>
+                      <p style={{
+                        color: '#F44336',
+                        fontSize: '14px',
+                        margin: 0,
+                        fontFamily: '"Inter", Arial, sans-serif'
+                      }}>
+                        Please go back and fill in all required fields.
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              </Step>
+            </Stepper>
+          </div>
+        </div>
+      )}
+      <style>{`
+        .team-collab-stepper .next-button {
+          background: #F05A3C !important;
+        }
+        .team-collab-stepper .next-button:hover {
+          background: #e04a2b !important;
+        }
+      `}</style>
     </div>
   );
 };

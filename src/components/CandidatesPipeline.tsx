@@ -32,6 +32,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [draggedCandidate, setDraggedCandidate] = useState<Candidate | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [newCandidate, setNewCandidate] = useState({
     name: '',
     email: '',
@@ -666,6 +667,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 
                 {/* Profile Settings */}
                 <div 
+                  onClick={() => navigate('/profile')}
                   style={{
                     padding: '16px 0',
                     borderBottom: '1px solid #E0E0E0',
@@ -674,13 +676,17 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
                   }}
                 >
                   <h4 style={{ 
@@ -703,44 +709,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   </p>
                 </div>
 
-                {/* Notifications */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    borderBottom: '1px solid #E0E0E0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Notifications
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Configure your notification preferences and alerts.
-                  </p>
-                </div>
+                
 
                 {/* Log Out */}
                 <div 
@@ -814,19 +783,31 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
               <span style={{ color: '#F06B4E' }}>Candidate</span> Pipeline
             </h1>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button style={{
-                background: 'white',
-                color: '#1A3C34',
-                padding: '10px 20px',
-                border: '1px solid #1A3C34',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
+              <button 
+                onClick={() => setShowAnalyticsModal(true)}
+                style={{
+                  background: 'white',
+                  color: '#1A3C34',
+                  padding: '10px 20px',
+                  border: '1px solid #1A3C34',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F8F9FA';
+                  e.currentTarget.style.borderColor = '#0F2A22';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.borderColor = '#1A3C34';
+                }}
+              >
                 <span>📊</span>
                 Analytics
               </button>
@@ -1680,6 +1661,372 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 </div>
               </Step>
             </Stepper>
+          </div>
+        </div>
+      )}
+
+      {/* Analytics Modal */}
+      {showAnalyticsModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+        onClick={() => setShowAnalyticsModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            width: '90%',
+            maxWidth: '900px',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              padding: '24px',
+              borderBottom: '1px solid #E0E0E0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1A3C34',
+                margin: 0,
+                fontFamily: '"Montserrat", Arial, sans-serif'
+              }}>
+                📊 Pipeline Analytics
+              </h2>
+              <button
+                onClick={() => setShowAnalyticsModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666666',
+                  padding: '4px 8px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Analytics Content */}
+            <div style={{ padding: '24px' }}>
+              {(() => {
+                // Calculate analytics from candidates data
+                const totalCandidates = candidates.length;
+                const candidatesByStage = stages.reduce((acc, stage) => {
+                  acc[stage.key] = candidates.filter(c => c.stage === stage.key).length;
+                  return acc;
+                }, {} as Record<string, number>);
+
+                const hired = candidatesByStage['Hired'] || 0;
+                const rejected = candidatesByStage['Rejected'] || 0;
+                const inPipeline = totalCandidates - hired - rejected;
+                const conversionRate = totalCandidates > 0 ? ((hired / totalCandidates) * 100).toFixed(1) : '0';
+                
+                const avgRating = candidates.length > 0 
+                  ? (candidates.reduce((sum, c) => sum + c.rating, 0) / candidates.length).toFixed(1)
+                  : '0';
+
+                return (
+                  <div>
+                    {/* Key Metrics */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '32px'
+                    }}>
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <div style={{
+                          fontSize: '32px',
+                          fontWeight: '700',
+                          color: '#1A3C34',
+                          marginBottom: '8px',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          {totalCandidates}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif'
+                        }}>
+                          Total Candidates
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <div style={{
+                          fontSize: '32px',
+                          fontWeight: '700',
+                          color: '#388E3C',
+                          marginBottom: '8px',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          {hired}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif'
+                        }}>
+                          Hired
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <div style={{
+                          fontSize: '32px',
+                          fontWeight: '700',
+                          color: '#1A3C34',
+                          marginBottom: '8px',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          {inPipeline}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif'
+                        }}>
+                          In Pipeline
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <div style={{
+                          fontSize: '32px',
+                          fontWeight: '700',
+                          color: '#F57C00',
+                          marginBottom: '8px',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          {conversionRate}%
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif'
+                        }}>
+                          Conversion Rate
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <div style={{
+                          fontSize: '32px',
+                          fontWeight: '700',
+                          color: '#7B1FA2',
+                          marginBottom: '8px',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          {avgRating}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif'
+                        }}>
+                          Avg Rating
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pipeline Distribution */}
+                    <div style={{
+                      background: '#F8F9FA',
+                      padding: '24px',
+                      borderRadius: '12px',
+                      marginBottom: '24px'
+                    }}>
+                      <h3 style={{
+                        fontSize: '18px',
+                        fontWeight: '600',
+                        color: '#1A3C34',
+                        margin: '0 0 20px 0',
+                        fontFamily: '"Montserrat", Arial, sans-serif'
+                      }}>
+                        Pipeline Distribution
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {stages.map(stage => {
+                          const count = candidatesByStage[stage.key] || 0;
+                          const percentage = totalCandidates > 0 ? ((count / totalCandidates) * 100).toFixed(1) : '0';
+                          return (
+                            <div key={stage.key}>
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '8px'
+                              }}>
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '12px'
+                                }}>
+                                  <div style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    borderRadius: '50%',
+                                    background: stage.color
+                                  }}></div>
+                                  <span style={{
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    color: '#222222',
+                                    fontFamily: '"Inter", Arial, sans-serif'
+                                  }}>
+                                    {stage.label}
+                                  </span>
+                                </div>
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '12px'
+                                }}>
+                                  <span style={{
+                                    fontSize: '14px',
+                                    color: '#666666',
+                                    fontFamily: '"Inter", Arial, sans-serif'
+                                  }}>
+                                    {percentage}%
+                                  </span>
+                                  <span style={{
+                                    fontSize: '16px',
+                                    fontWeight: '600',
+                                    color: '#1A3C34',
+                                    fontFamily: '"Montserrat", Arial, sans-serif'
+                                  }}>
+                                    {count}
+                                  </span>
+                                </div>
+                              </div>
+                              <div style={{
+                                width: '100%',
+                                height: '8px',
+                                background: '#E0E0E0',
+                                borderRadius: '4px',
+                                overflow: 'hidden'
+                              }}>
+                                <div style={{
+                                  width: `${percentage}%`,
+                                  height: '100%',
+                                  background: stage.color,
+                                  transition: 'width 0.5s ease'
+                                }}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Summary Stats */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '16px'
+                    }}>
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <h4 style={{
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          color: '#1A3C34',
+                          margin: '0 0 12px 0',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          Pipeline Health
+                        </h4>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          lineHeight: '1.6'
+                        }}>
+                          <div>Active Candidates: <strong>{inPipeline}</strong></div>
+                          <div>Completed: <strong>{hired + rejected}</strong></div>
+                          <div>Rejection Rate: <strong>{totalCandidates > 0 ? ((rejected / totalCandidates) * 100).toFixed(1) : '0'}%</strong></div>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#F8F9FA',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid #E0E0E0'
+                      }}>
+                        <h4 style={{
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          color: '#1A3C34',
+                          margin: '0 0 12px 0',
+                          fontFamily: '"Montserrat", Arial, sans-serif'
+                        }}>
+                          Performance
+                        </h4>
+                        <div style={{
+                          fontSize: '14px',
+                          color: '#666666',
+                          fontFamily: '"Inter", Arial, sans-serif',
+                          lineHeight: '1.6'
+                        }}>
+                          <div>Hire Rate: <strong>{conversionRate}%</strong></div>
+                          <div>Average Rating: <strong>{avgRating}/5.0</strong></div>
+                          <div>Total Processed: <strong>{totalCandidates}</strong></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       )}

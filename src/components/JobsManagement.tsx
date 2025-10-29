@@ -321,6 +321,8 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreationChoiceModal, setShowCreationChoiceModal] = useState(false);
+  const [useAICreation, setUseAICreation] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [viewingJob, setViewingJob] = useState<Job | null>(null);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
@@ -385,17 +387,31 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
 
   const handleEdit = (job: Job) => {
     setEditingJob(job);
+    setUseAICreation(false);
+    setShowCreateModal(true);
+  };
+
+  const handleCreateClick = () => {
+    setEditingJob(null);
+    setShowCreationChoiceModal(true);
+  };
+
+  const handleCreationChoice = (useAI: boolean) => {
+    setUseAICreation(useAI);
+    setShowCreationChoiceModal(false);
     setShowCreateModal(true);
   };
 
   const handleSaveJob = () => {
     fetchJobs();
     setEditingJob(null);
+    setUseAICreation(false);
   };
 
   const handleCloseModal = () => {
     setShowCreateModal(false);
     setEditingJob(null);
+    setUseAICreation(false);
   };
 
   return (
@@ -844,7 +860,7 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                 </h3>
                 
                 {/* Profile Settings */}
-                  <div style={{
+                  <div onClick={() => navigate('/profile')} style={{
                     padding: '16px 0',
                     borderBottom: '1px solid #E0E0E0',
                     cursor: 'pointer',
@@ -885,47 +901,7 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                   </p>
                 </div>
 
-                {/* Notification Settings */}
-                <div style={{
-                    padding: '16px 0',
-                    borderBottom: '1px solid #E0E0E0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                  const h4 = e.currentTarget.querySelector('h4');
-                  const p = e.currentTarget.querySelector('p');
-                  if (h4) h4.style.color = '#F06B4E';
-                  if (p) p.style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                  const h4 = e.currentTarget.querySelector('h4');
-                  const p = e.currentTarget.querySelector('p');
-                  if (h4) h4.style.color = '#222222';
-                  if (p) p.style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                  Notification Settings
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                  Manage your notification preferences.
-                  </p>
-                </div>
+                
 
               {/* Logout */}
                 <div 
@@ -1021,7 +997,7 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
               </p>
             </div>
             <button 
-              onClick={() => setShowCreateModal(true)}
+              onClick={handleCreateClick}
               style={{
                 background: 'linear-gradient(135deg, #F05A3C 0%, #e04a2b 100%)',
                 color: 'white',
@@ -1307,12 +1283,150 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
           }
         `}</style>
 
+        {/* Creation Choice Modal */}
+        {showCreationChoiceModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '500px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+              padding: '32px'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '600',
+                color: '#222222',
+                margin: '0 0 8px 0',
+                fontFamily: '"Montserrat", Arial, sans-serif',
+                textAlign: 'center'
+              }}>
+                How would you like to create this job?
+              </h2>
+              <p style={{
+                fontSize: '16px',
+                color: '#666666',
+                margin: '0 0 32px 0',
+                fontFamily: '"Inter", Arial, sans-serif',
+                textAlign: 'center'
+              }}>
+                Choose between AI-powered creation or manual entry
+              </p>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}>
+                <button
+                  onClick={() => handleCreationChoice(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #1A3C34 0%, #2d5a4f 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '20px 24px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    fontFamily: '"Montserrat", Arial, sans-serif',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(26, 60, 52, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(26, 60, 52, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(26, 60, 52, 0.3)';
+                  }}
+                >
+                  <span>✨</span>
+                  Create using AI
+                </button>
+                <button
+                  onClick={() => handleCreationChoice(false)}
+                  style={{
+                    background: 'white',
+                    color: '#1A3C34',
+                    border: '2px solid #1A3C34',
+                    borderRadius: '12px',
+                    padding: '20px 24px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    fontFamily: '"Montserrat", Arial, sans-serif',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#F8F9FA';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'white';
+                  }}
+                >
+                  <span>✏️</span>
+                  Create Manually
+                </button>
+              </div>
+              <button
+                onClick={() => setShowCreationChoiceModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginTop: '24px',
+                  width: '100%',
+                  color: '#666666',
+                  fontFamily: '"Inter", Arial, sans-serif',
+                  fontSize: '14px',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F05A3C';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none';
+                  e.currentTarget.style.color = '#666666';
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Job Modal */}
         <JobModal
           isOpen={showCreateModal}
           onClose={handleCloseModal}
           onSave={handleSaveJob}
           job={editingJob}
+          useAI={useAICreation}
         />
 
         {/* Job Details Modal */}

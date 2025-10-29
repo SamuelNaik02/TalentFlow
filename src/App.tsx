@@ -9,6 +9,7 @@ import AssessmentsList from './components/AssessmentsList'
 import AnalyticsReports from './components/AnalyticsReports'
 import TeamCollaboration from './components/TeamCollaboration'
 import WorkflowAutomation from './components/WorkflowAutomation'
+import ProfilePage from './components/ProfilePage'
 import OfflineIndicator from './components/OfflineIndicator'
 import './App.css'
 
@@ -122,6 +123,16 @@ function App() {
                 <Navigate to="/login" replace />
               )
             } 
+          />
+          <Route
+            path="/profile"
+            element={
+              isLoggedIn ? (
+                <ProfilePage onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
           <Route 
             path="/" 

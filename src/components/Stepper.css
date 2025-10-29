@@ -61,6 +61,17 @@
   font-weight: 600;
 }
 
+/* Ensure active step number is white - highest priority */
+.step-indicator-inner .step-number-active,
+.step-number-active {
+  color: #FFFFFF !important;
+}
+
+.step-indicator-inner[data-status="active"] .step-number,
+.step-indicator-inner[data-status="active"] .step-number-active {
+  color: #FFFFFF !important;
+}
+
 .check-icon {
   width: 20px;
   height: 20px;
