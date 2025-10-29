@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Shuffle from './Shuffle';
 import { createCandidateActivity } from '../services/activityService';
 import Stepper, { Step } from './Stepper';
+import { candidatesApi } from '../services/api';
+import type { Candidate as ApiCandidate, PaginatedResponse } from '../types';
 
 interface Candidate {
   id: string;
@@ -25,6 +27,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStage, setSelectedStage] = useState<string>('All');
+  const [loading, setLoading] = useState(true);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [draggedCandidate, setDraggedCandidate] = useState<Candidate | null>(null);
@@ -49,96 +52,68 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
     { key: 'Rejected', label: 'Rejected', color: '#FFEBEE', textColor: '#D32F2F' }
   ];
 
-  // Sample data
+  // Helper to map UI stage to API stage
+  const mapUiStageToApi = (ui: string): string => {
+    switch (ui) {
+      case 'Applied': return 'applied';
+      case 'Screening': return 'screen';
+      case 'Interview': return 'tech';
+      case 'Offer': return 'offer';
+      case 'Hired': return 'hired';
+      case 'Rejected': return 'rejected';
+      default: return '';
+    }
+  };
+
+  // Helper to map API stage to UI stage
+  const mapApiStageToUi = (api: string): Candidate['stage'] => {
+    switch (api.toLowerCase()) {
+      case 'applied': return 'Applied';
+      case 'screen': return 'Screening';
+      case 'tech': return 'Interview';
+      case 'offer': return 'Offer';
+      case 'hired': return 'Hired';
+      case 'rejected': return 'Rejected';
+      default: return 'Applied';
+    }
+  };
+
+  // Load ALL candidates from API for Kanban board view
   useEffect(() => {
-    const sampleCandidates: Candidate[] = [
-      {
-        id: '1',
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@email.com',
-        phone: '+1 (555) 123-4567',
-        stage: 'Applied',
-        jobTitle: 'Senior Frontend Developer',
-        company: 'TechCorp Inc.',
-        appliedDate: '2024-01-15',
-        experience: '5 years',
-        skills: ['React', 'TypeScript', 'Node.js', 'AWS'],
-        rating: 4.5,
-        notes: ['Strong portfolio', 'Great communication']
-      },
-      {
-        id: '2',
-        name: 'Michael Chen',
-        email: 'michael.chen@email.com',
-        phone: '+1 (555) 234-5678',
-        stage: 'Screening',
-        jobTitle: 'Product Manager',
-        company: 'StartupXYZ',
-        appliedDate: '2024-01-14',
-        experience: '4 years',
-        skills: ['Product Management', 'Agile', 'Analytics', 'Figma'],
-        rating: 4.2,
-        notes: ['Passed initial screening', 'Good cultural fit']
-      },
-      {
-        id: '3',
-        name: 'Emily Rodriguez',
-        email: 'emily.rodriguez@email.com',
-        phone: '+1 (555) 345-6789',
-        stage: 'Interview',
-        jobTitle: 'UX Designer',
-        company: 'DesignStudio',
-        appliedDate: '2024-01-10',
-        experience: '3 years',
-        skills: ['Figma', 'User Research', 'Prototyping', 'Design Systems'],
-        rating: 4.8,
-        notes: ['Excellent design skills', 'Scheduled for final interview']
-      },
-      {
-        id: '4',
-        name: 'David Kim',
-        email: 'david.kim@email.com',
-        phone: '+1 (555) 456-7890',
-        stage: 'Offer',
-        jobTitle: 'Backend Developer',
-        company: 'DataFlow Systems',
-        appliedDate: '2024-01-12',
-        experience: '6 years',
-        skills: ['Node.js', 'Python', 'PostgreSQL', 'Docker'],
-        rating: 4.6,
-        notes: ['Technical interview passed', 'Salary negotiation in progress']
-      },
-      {
-        id: '5',
-        name: 'Lisa Wang',
-        email: 'lisa.wang@email.com',
-        phone: '+1 (555) 567-8901',
-        stage: 'Hired',
-        jobTitle: 'Marketing Specialist',
-        company: 'GrowthCo',
-        appliedDate: '2024-01-08',
-        experience: '2 years',
-        skills: ['Digital Marketing', 'Social Media', 'Analytics', 'Content Creation'],
-        rating: 4.3,
-        notes: ['Offer accepted', 'Start date: Feb 1st']
-      },
-      {
-        id: '6',
-        name: 'James Wilson',
-        email: 'james.wilson@email.com',
-        phone: '+1 (555) 678-9012',
-        stage: 'Rejected',
-        jobTitle: 'Senior Frontend Developer',
-        company: 'TechCorp Inc.',
-        appliedDate: '2024-01-05',
-        experience: '3 years',
-        skills: ['React', 'JavaScript', 'CSS', 'HTML'],
-        rating: 3.2,
-        notes: ['Technical skills not up to par', 'Poor cultural fit']
+    const loadCandidates = async () => {
+      setLoading(true);
+      try {
+        // Load all candidates (2000 max to ensure we get all 1000)
+        const res: PaginatedResponse<ApiCandidate> = await candidatesApi.getAll({ 
+          page: 1, 
+          pageSize: 2000, 
+          search: '', // No search filter - load all
+          stage: '' // No stage filter - load all stages
+        });
+        const uiCandidates: Candidate[] = res.data.map((c) => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          phone: c.phone || '',
+          stage: mapApiStageToUi(c.stage),
+          jobTitle: c.jobId ? `Job ${c.jobId}` : '',
+          company: '',
+          appliedDate: new Date((c as any).appliedAt as string | number | Date).toISOString().split('T')[0],
+          experience: '',
+          skills: [],
+          notes: c.notes || [],
+          rating: Math.round(Math.random() * 50) / 10
+        }));
+        setCandidates(uiCandidates);
+        console.log(`Loaded ${uiCandidates.length} candidates (total ${res.total})`);
+      } catch (e) {
+        console.error('Failed to load candidates from API:', e);
+      } finally {
+        setLoading(false);
       }
-    ];
-    setCandidates(sampleCandidates);
-  }, []);
+    };
+    loadCandidates();
+  }, []); // Load once on mount
 
   const filteredCandidates = candidates.filter(candidate => {
     const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,17 +137,33 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, newStage: string) => {
+  const handleDrop = async (e: React.DragEvent, newStage: string) => {
     e.preventDefault();
     if (draggedCandidate && draggedCandidate.stage !== newStage) {
+      const apiStage = mapUiStageToApi(newStage);
+      
+      // Optimistically update UI
       setCandidates(candidates.map(candidate =>
         candidate.id === draggedCandidate.id
           ? { ...candidate, stage: newStage as Candidate['stage'] }
           : candidate
       ));
       
-      // Log stage change activity
-      createCandidateActivity('candidate_stage_changed', draggedCandidate.name, draggedCandidate.id, newStage);
+      try {
+        // Update via API
+        await candidatesApi.update(draggedCandidate.id, { stage: apiStage as any });
+        
+        // Log stage change activity
+        createCandidateActivity('candidate_stage_changed', draggedCandidate.name, draggedCandidate.id, newStage);
+      } catch (error) {
+        console.error('Failed to update candidate stage:', error);
+        // Revert on error
+        setCandidates(candidates.map(candidate =>
+          candidate.id === draggedCandidate.id
+            ? { ...candidate, stage: draggedCandidate.stage }
+            : candidate
+        ));
+      }
     }
     setDraggedCandidate(null);
   };
@@ -201,30 +192,47 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
     setShowCreateModal(true);
   };
 
-  const handleSaveCandidate = () => {
+  const handleSaveCandidate = async () => {
     if (!newCandidate.name.trim() || !newCandidate.email.trim()) return;
 
-    const candidateData: Candidate = {
-      id: Date.now().toString(),
-      name: newCandidate.name,
-      email: newCandidate.email,
-      phone: newCandidate.phone,
-      stage: 'Applied',
-      jobTitle: newCandidate.jobTitle,
-      company: newCandidate.company,
-      appliedDate: new Date().toISOString().split('T')[0],
-      experience: newCandidate.experience,
-      skills: newCandidate.skills,
-      rating: 0,
-      notes: newCandidate.notes
-    };
+    try {
+      // Create via API
+      const created = await candidatesApi.create({
+        name: newCandidate.name,
+        email: newCandidate.email,
+        phone: newCandidate.phone || '',
+        stage: 'applied',
+        jobId: '',
+        notes: newCandidate.notes || [],
+        timeline: []
+      });
 
-    setCandidates([...candidates, candidateData]);
-    
-    // Log candidate addition activity
-    createCandidateActivity('candidate_added', candidateData.name, candidateData.id);
-    
-    setShowCreateModal(false);
+      // Map API candidate to UI format
+      const uiCandidate: Candidate = {
+        id: created.id,
+        name: created.name,
+        email: created.email,
+        phone: created.phone || '',
+        stage: mapApiStageToUi(created.stage),
+        jobTitle: newCandidate.jobTitle,
+        company: newCandidate.company,
+        appliedDate: new Date((created as any).appliedAt as string | number | Date).toISOString().split('T')[0],
+        experience: newCandidate.experience,
+        skills: newCandidate.skills,
+        rating: 0,
+        notes: created.notes || []
+      };
+
+      // Add to local state
+      setCandidates([...candidates, uiCandidate]);
+      
+      // Log candidate addition activity
+      createCandidateActivity('candidate_added', uiCandidate.name, uiCandidate.id);
+      
+      setShowCreateModal(false);
+    } catch (error) {
+      console.error('Failed to create candidate:', error);
+    }
   };
 
   const addSkill = () => {
@@ -471,6 +479,86 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   </p>
                 </div>
 
+                {/* Team Collaboration */}
+                <div 
+                  onClick={() => navigate('/collaboration')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Team Collaboration
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Collaborate with your team on hiring decisions.
+                  </p>
+                </div>
+
+                {/* Workflow Automation */}
+                <div 
+                  onClick={() => navigate('/automation')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Workflow Automation
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Automate repetitive tasks and streamline workflows.
+                  </p>
+                </div>
+
                 {/* Analytics & Reports */}
                 <div 
                   onClick={() => navigate('/analytics')}
@@ -511,82 +599,6 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   </p>
                 </div>
 
-                {/* Team Collaboration */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    borderBottom: '1px solid #E0E0E0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Team Collaboration
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Collaborate with your team on hiring decisions.
-                  </p>
-                </div>
-
-                {/* Workflow Automation */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Workflow Automation
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Automate repetitive tasks and streamline workflows.
-                  </p>
-                </div>
               </div>
             )}
           </div>
@@ -849,7 +861,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
             Manage your candidate pipeline with drag-and-drop kanban boards. Track progress, add notes, and collaborate with your team.
           </p>
 
-          {/* Search and Filter */}
+          {/* Search, Filter, Pagination */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flex: '1', minWidth: '300px' }}>
               <input
@@ -890,12 +902,21 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
               value={selectedStage}
               onChange={(e) => setSelectedStage(e.target.value)}
               style={{
-                padding: '12px 16px',
-                border: '1px solid #E0E0E0',
+                padding: '12px 16px 12px 16px',
+                border: '2px solid #E0E0E0',
                 borderRadius: '8px',
                 fontSize: '14px',
-                background: 'white',
+                fontFamily: '"Inter", Arial, sans-serif',
+                background: '#F8F9FA',
+                color: '#222222',
                 cursor: 'pointer',
+                fontWeight: '500',
+                minWidth: '160px',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 14px center',
+                paddingRight: '44px',
                 outline: 'none'
               }}
             >
@@ -904,17 +925,55 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 <option key={stage.key} value={stage.key}>{stage.label}</option>
               ))}
             </select>
+
+            {/* Candidate Count */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              marginLeft: 'auto',
+              color: '#666',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              <span>{filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'}</span>
+              {selectedStage !== 'All' && searchTerm && (
+                <span style={{ color: '#999' }}>• Filtered</span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Kanban Board */}
-        <div className="hide-scrollbar" style={{ 
-          display: 'flex', 
-          gap: '20px', 
-          overflowX: 'auto',
-          paddingBottom: '20px'
-        }}>
-          {stages.map(stage => {
+        {loading ? (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            padding: '60px 20px',
+            color: '#666'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                marginBottom: '8px' 
+              }}>
+                Loading candidates...
+              </div>
+              <div style={{ fontSize: '14px', color: '#999' }}>
+                Please wait while we fetch all candidates
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="hide-scrollbar" style={{ 
+            display: 'flex', 
+            gap: '20px', 
+            overflowX: 'auto',
+            paddingBottom: '20px'
+          }}>
+            {stages.map(stage => {
             const stageCandidates = getCandidatesByStage(stage.key);
             return (
               <div
@@ -1126,10 +1185,11 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
 
         {/* Empty State */}
-        {filteredCandidates.length === 0 && (
+        {!loading && filteredCandidates.length === 0 && (
           <div style={{ 
             textAlign: 'center', 
             padding: '60px 20px',

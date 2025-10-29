@@ -307,6 +307,86 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                   </p>
                 </div>
 
+                {/* Team Collaboration */}
+                <div 
+                  onClick={() => navigate('/collaboration')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Team Collaboration
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Collaborate with your team on hiring decisions.
+                  </p>
+                </div>
+
+                {/* Workflow Automation */}
+                <div 
+                  onClick={() => navigate('/automation')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Workflow Automation
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Automate repetitive tasks and streamline workflows.
+                  </p>
+                </div>
+
                 {/* Analytics & Reports */}
                 <div 
                   onClick={() => navigate('/analytics')}

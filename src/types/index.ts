@@ -9,7 +9,11 @@ export interface Job {
   description?: string;
   requirements?: string[];
   location?: string;
-  salary?: string;
+  salary?: {
+    min: number;
+    max: number;
+    currency: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -24,8 +28,15 @@ export interface Candidate {
   phone?: string;
   resume?: string;
   coverLetter?: string;
-  appliedAt: string;
-  updatedAt: string;
+  notes: string[];
+  timeline: {
+    stage: string;
+    timestamp: Date;
+    note?: string;
+  }[];
+  appliedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Assessment types

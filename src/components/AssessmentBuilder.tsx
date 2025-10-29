@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Shuffle from './Shuffle';
 import { createAssessmentActivity } from '../services/activityService';
 import Stepper, { Step } from './Stepper';
+import { assessmentsApi } from '../services/api';
+import type { Assessment as ApiAssessment } from '../types';
 
 interface Question {
   id: string;
@@ -47,81 +49,59 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     jobId: ''
   });
 
-  // Sample data
+  // Helper to map API assessment to UI assessment format
+  const mapApiAssessmentToUi = (apiAssessment: ApiAssessment): Assessment => {
+    // Flatten sections into questions array
+    const questions: Question[] = [];
+    apiAssessment.sections.forEach((section) => {
+      section.questions.forEach((apiQuestion) => {
+        questions.push({
+          id: apiQuestion.id,
+          type: apiQuestion.type === 'multi-choice' ? 'multiple-choice' : apiQuestion.type,
+          title: apiQuestion.question,
+          description: undefined,
+          required: apiQuestion.required,
+          options: apiQuestion.options,
+          min: apiQuestion.min,
+          max: apiQuestion.max,
+          maxLength: apiQuestion.maxLength,
+          conditional: apiQuestion.conditional ? {
+            dependsOn: apiQuestion.conditional.dependsOn,
+            condition: apiQuestion.conditional.condition,
+            value: (apiQuestion.conditional as any).value || ''
+          } : undefined
+        });
+      });
+    });
+
+    return {
+      id: apiAssessment.id,
+      title: apiAssessment.title,
+      description: apiAssessment.description || '',
+      jobId: apiAssessment.jobId,
+      questions: questions,
+      createdAt: typeof apiAssessment.createdAt === 'string' 
+        ? apiAssessment.createdAt 
+        : new Date(apiAssessment.createdAt).toISOString().split('T')[0],
+      updatedAt: typeof apiAssessment.updatedAt === 'string'
+        ? apiAssessment.updatedAt
+        : new Date(apiAssessment.updatedAt).toISOString().split('T')[0]
+    };
+  };
+
+  // Load assessments from API
   useEffect(() => {
-    const sampleAssessments: Assessment[] = [
-      {
-        id: '1',
-        title: 'Frontend Developer Assessment',
-        description: 'Comprehensive assessment for frontend developer position',
-        jobId: '1',
-        createdAt: '2024-01-15',
-        updatedAt: '2024-01-15',
-        questions: [
-          {
-            id: 'q1',
-            type: 'single-choice',
-            title: 'What is your primary frontend framework?',
-            required: true,
-            options: ['React', 'Vue.js', 'Angular', 'Svelte', 'Other']
-          },
-          {
-            id: 'q2',
-            type: 'multiple-choice',
-            title: 'Which technologies are you familiar with?',
-            required: true,
-            options: ['TypeScript', 'JavaScript', 'CSS3', 'HTML5', 'Webpack', 'Vite', 'Sass', 'Less']
-          },
-          {
-            id: 'q3',
-            type: 'short-text',
-            title: 'How many years of frontend development experience do you have?',
-            required: true,
-            maxLength: 50
-          },
-          {
-            id: 'q4',
-            type: 'long-text',
-            title: 'Describe a challenging project you worked on and how you solved it.',
-            required: true,
-            maxLength: 500
-          },
-          {
-            id: 'q5',
-            type: 'numeric',
-            title: 'What is your expected salary range?',
-            required: true,
-            min: 50000,
-            max: 200000
-          }
-        ]
-      },
-      {
-        id: '2',
-        title: 'Product Manager Assessment',
-        description: 'Assessment for product manager role',
-        jobId: '2',
-        createdAt: '2024-01-14',
-        updatedAt: '2024-01-14',
-        questions: [
-          {
-            id: 'q1',
-            type: 'single-choice',
-            title: 'What is your experience with Agile methodologies?',
-            required: true,
-            options: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
-          },
-          {
-            id: 'q2',
-            type: 'long-text',
-            title: 'Describe your approach to product prioritization.',
-            required: true,
-            maxLength: 300
-          }
-        ]
+    const loadAssessments = async () => {
+      try {
+        const apiAssessments = await assessmentsApi.getAll();
+        const uiAssessments = apiAssessments.map(mapApiAssessmentToUi);
+        setAssessments(uiAssessments);
+        console.log(`Loaded ${uiAssessments.length} assessments from API`);
+      } catch (error) {
+        console.error('Failed to load assessments from API:', error);
       }
-    ];
-    setAssessments(sampleAssessments);
+    };
+    loadAssessments();
   }, []);
 
   const handleCreateAssessment = () => {
@@ -193,27 +173,77 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     }
   };
 
-  const handleSaveAssessment = () => {
+  // Helper to convert UI assessment to API format
+  const mapUiAssessmentToApi = (uiAssessment: Assessment): ApiAssessment => {
+    // Convert flat questions array to sections format
+    // Group questions into a single default section for simplicity
+    const apiQuestions = uiAssessment.questions.map((q, index) => ({
+      id: q.id,
+      type: q.type === 'multiple-choice' ? 'multi-choice' : q.type,
+      question: q.title,
+      required: q.required,
+      options: q.options,
+      min: q.min,
+      max: q.max,
+      maxLength: q.maxLength,
+      conditional: q.conditional ? {
+        dependsOn: q.conditional.dependsOn,
+        condition: q.conditional.condition,
+        value: (q.conditional as any).value
+      } : undefined,
+      order: index
+    }));
+
+    return {
+      id: uiAssessment.id,
+      jobId: uiAssessment.jobId,
+      title: uiAssessment.title,
+      description: uiAssessment.description,
+      sections: [
+        {
+          id: `section-${uiAssessment.id}-1`,
+          title: 'Assessment Questions',
+          questions: apiQuestions,
+          order: 0
+        }
+      ],
+      createdAt: uiAssessment.createdAt,
+      updatedAt: new Date().toISOString()
+    };
+  };
+
+  const handleSaveAssessment = async () => {
     if (currentAssessment) {
-      const updatedAssessment = {
-        ...currentAssessment,
-        updatedAt: new Date().toISOString().split('T')[0]
-      };
-      
-      setAssessments(assessments.map(a => a.id === currentAssessment.id ? updatedAssessment : a));
-      setCurrentAssessment(updatedAssessment);
-      setIsSaved(true);
-      
-      // Log assessment update activity
-      createAssessmentActivity('assessment_updated', currentAssessment.title, currentAssessment.id);
-      
-      // Show success message
-      alert('Assessment saved successfully!');
-      
-      // Reset saved state after 3 seconds
-      setTimeout(() => {
-        setIsSaved(false);
-      }, 3000);
+      try {
+        // Convert to API format
+        const apiAssessment = mapUiAssessmentToApi(currentAssessment);
+        
+        // Save via API
+        await assessmentsApi.save(currentAssessment.jobId, apiAssessment);
+        
+        const updatedAssessment = {
+          ...currentAssessment,
+          updatedAt: new Date().toISOString().split('T')[0]
+        };
+        
+        setAssessments(assessments.map(a => a.id === currentAssessment.id ? updatedAssessment : a));
+        setCurrentAssessment(updatedAssessment);
+        setIsSaved(true);
+        
+        // Log assessment update activity
+        createAssessmentActivity('assessment_updated', currentAssessment.title, currentAssessment.id);
+        
+        // Show success message
+        alert('Assessment saved successfully!');
+        
+        // Reset saved state after 3 seconds
+        setTimeout(() => {
+          setIsSaved(false);
+        }, 3000);
+      } catch (error) {
+        console.error('Failed to save assessment:', error);
+        alert('Failed to save assessment. Please try again.');
+      }
     }
   };
 
@@ -1151,6 +1181,86 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                   </p>
                 </div>
 
+                {/* Team Collaboration */}
+                <div 
+                  onClick={() => navigate('/collaboration')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Team Collaboration
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Collaborate with your team on hiring decisions.
+                  </p>
+                </div>
+
+                {/* Workflow Automation */}
+                <div 
+                  onClick={() => navigate('/automation')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#F06B4E';
+                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
+                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#222222';
+                    e.currentTarget.querySelector('h4').style.color = '#222222';
+                    e.currentTarget.querySelector('p').style.color = '#666666';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Workflow Automation
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Automate repetitive tasks and streamline workflows.
+                  </p>
+                </div>
+
                 {/* Analytics & Reports */}
                 <div 
                   onClick={() => navigate('/analytics')}
@@ -1191,82 +1301,6 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                   </p>
                 </div>
 
-                {/* Team Collaboration */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    borderBottom: '1px solid #E0E0E0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Team Collaboration
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Collaborate with your team on hiring decisions.
-                  </p>
-                </div>
-
-                {/* Workflow Automation */}
-                <div 
-                  style={{
-                    padding: '16px 0',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 'bold', 
-                    color: '#222222', 
-                    margin: '0 0 6px 0',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Workflow Automation
-                  </h4>
-                  <p style={{ 
-                    fontSize: '13px', 
-                    color: '#666666', 
-                    margin: '0',
-                    lineHeight: '1.4',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    Automate repetitive tasks and streamline workflows.
-                  </p>
-                </div>
               </div>
             )}
           </div>

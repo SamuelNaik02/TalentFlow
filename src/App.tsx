@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import SimpleLoginPage from './components/SimpleLoginPage'
 import SimpleDashboard from './components/SimpleDashboard'
-import TestDashboard from './components/TestDashboard'
-import SimpleDashboardMinimal from './components/SimpleDashboardMinimal'
-import SimpleTest from './components/SimpleTest'
-import UltraSimpleTest from './components/UltraSimpleTest'
 import JobsManagement from './components/JobsManagement'
 import CandidatesPipeline from './components/CandidatesPipeline'
 import AssessmentBuilder from './components/AssessmentBuilder'
+import AssessmentsList from './components/AssessmentsList'
 import AnalyticsReports from './components/AnalyticsReports'
-// import { initializeDatabase } from './db'
+import TeamCollaboration from './components/TeamCollaboration'
+import WorkflowAutomation from './components/WorkflowAutomation'
+import OfflineIndicator from './components/OfflineIndicator'
 import './App.css'
 
 function App() {
@@ -18,11 +17,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('talentflow-logged-in') === 'true'
   })
-  useEffect(() => {
-    // Initialize database
-    // Temporarily disabled for debugging
-    // initializeDatabase()
-  }, [])
 
   const handleLogin = () => {
     setIsLoggedIn(true)
@@ -37,6 +31,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <OfflineIndicator />
         <Routes>
               <Route
                 path="/login"
@@ -89,10 +84,40 @@ function App() {
             } 
           />
           <Route 
+            path="/assessments-seed" 
+            element={
+              isLoggedIn ? (
+                <AssessmentsList onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
             path="/analytics" 
             element={
               isLoggedIn ? (
                 <AnalyticsReports onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/collaboration" 
+            element={
+              isLoggedIn ? (
+                <TeamCollaboration onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/automation" 
+            element={
+              isLoggedIn ? (
+                <WorkflowAutomation onLogout={handleLogout} />
               ) : (
                 <Navigate to="/login" replace />
               )

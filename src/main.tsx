@@ -2,17 +2,32 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './style.css'
+import { initializeDatabase } from './db/database'
 
-// Start MSW in development
-// Temporarily disabled for debugging
-// if (import.meta.env.DEV) {
-//   import('./mocks/browser').then(({ worker }) => {
-//     worker.start()
-//   })
-// }
+// Initialize database and start MSW
+const initializeApp = async () => {
+  try {
+    // Initialize IndexedDB with seed data if empty
+    await initializeDatabase();
+    
+    // Start MSW in development
+    if (import.meta.env.DEV) {
+      const { worker } = await import('./mocks/browser');
+      await worker.start();
+      console.log('MSW started successfully');
+    }
+    
+    console.log('App initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+  }
+};
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+// Initialize app before rendering
+initializeApp().then(() => {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  )
+});

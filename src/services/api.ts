@@ -1,23 +1,47 @@
-import { Job, Candidate, Assessment, AssessmentResponse, TimelineEvent, PaginatedResponse, JobFilters, CandidateFilters } from '../types';
+import type { Job, Candidate, Assessment, AssessmentResponse, PaginatedResponse, JobFilters, CandidateFilters } from '../types';
+import { offlineService } from './offlineService';
+import { db } from '../db/database';
 
 const API_BASE_URL = '/api';
 
-// Generic API call function
-async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  });
+// Generic API call function with offline support
+export async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const isWriteOperation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method || 'GET');
+  
+  try {
+    const url = `${API_BASE_URL}${endpoint}`;
+    console.log('apiCall making request to:', url);
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'API call failed');
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'API call failed');
+    }
+
+    return response.json();
+  } catch (error) {
+    // If offline and it's a write operation, queue it
+    if (!offlineService.isConnected() && isWriteOperation) {
+      console.log(`Queuing offline operation: ${options.method} ${endpoint}`);
+      await offlineService.addToOfflineQueue(
+        options.method as 'POST' | 'PATCH' | 'DELETE',
+        endpoint,
+        options.body ? JSON.parse(options.body as string) : undefined
+      );
+      
+      // For write operations, we can return a mock response or throw a specific error
+      // The UI should handle this gracefully
+      throw new Error('Operation queued for when online');
+    }
+    
+    throw error;
   }
-
-  return response.json();
 }
 
 // Jobs API
@@ -85,6 +109,13 @@ export const candidatesApi = {
     return apiCall<Candidate>(`/candidates/${id}`);
   },
 
+  create: async (candidate: Omit<Candidate, 'id' | 'appliedAt' | 'updatedAt'>): Promise<Candidate> => {
+    return apiCall<Candidate>('/candidates', {
+      method: 'POST',
+      body: JSON.stringify(candidate),
+    });
+  },
+
   update: async (id: string, updates: Partial<Candidate>): Promise<Candidate> => {
     return apiCall<Candidate>(`/candidates/${id}`, {
       method: 'PATCH',
@@ -92,19 +123,23 @@ export const candidatesApi = {
     });
   },
 
-  getTimeline: async (id: string): Promise<TimelineEvent[]> => {
-    return apiCall<TimelineEvent[]>(`/candidates/${id}/timeline`);
+  getTimeline: async (id: string): Promise<Candidate['timeline']> => {
+    return apiCall<Candidate['timeline']>(`/candidates/${id}/timeline`);
   },
 };
 
 // Assessments API
 export const assessmentsApi = {
-  getByJobId: async (jobId: string): Promise<Assessment> => {
-    return apiCall<Assessment>(`/assessments/${jobId}`);
+  getAll: async (): Promise<any[]> => {
+    return apiCall<any[]>(`/assessments`);
   },
 
-  save: async (jobId: string, assessment: Assessment): Promise<Assessment> => {
-    return apiCall<Assessment>(`/assessments/${jobId}`, {
+  getByJobId: async (jobId: string): Promise<any> => { // Changed to any
+    return apiCall<any>(`/assessments/${jobId}`);
+  },
+
+  save: async (jobId: string, assessment: any): Promise<any> => { // Changed to any
+    return apiCall<any>(`/assessments/${jobId}`, {
       method: 'PUT',
       body: JSON.stringify(assessment),
     });
