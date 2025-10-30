@@ -44,18 +44,6 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
         currency: job.salary?.currency || 'INR',
         tags: job.tags.length > 0 ? job.tags : ['']
       });
-    } else if (useAI && generatedJob) {
-      // Load AI-generated data
-      setFormData({
-        title: generatedJob.title,
-        description: generatedJob.description,
-        requirements: generatedJob.requirements,
-        location: generatedJob.location,
-        salaryMin: generatedJob.salary.min.toString(),
-        salaryMax: generatedJob.salary.max.toString(),
-        currency: generatedJob.salary.currency,
-        tags: generatedJob.tags
-      });
     } else {
       setFormData({
         title: '',
@@ -71,7 +59,23 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
     setErrors({});
     setCurrentManualStep(1);
     setCurrentAIStep(1);
-  }, [job, useAI, generatedJob]);
+  }, [job, useAI]);
+
+  // When AI generation finishes, populate form without resetting the current AI step
+  useEffect(() => {
+    if (useAI && generatedJob && !job) {
+      setFormData({
+        title: generatedJob.title,
+        description: generatedJob.description,
+        requirements: generatedJob.requirements,
+        location: generatedJob.location,
+        salaryMin: generatedJob.salary.min.toString(),
+        salaryMax: generatedJob.salary.max.toString(),
+        currency: generatedJob.salary.currency,
+        tags: generatedJob.tags
+      });
+    }
+  }, [generatedJob, useAI, job]);
 
   // Reset AI state when modal opens/closes
   useEffect(() => {
