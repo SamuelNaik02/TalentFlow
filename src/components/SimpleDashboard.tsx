@@ -547,13 +547,13 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         width: '100%'
       }}>
         {/* Main Content Layout - Left: Stats, Right: Welcome + Activity */}
-        <div style={{ 
+        <div className="two-col" style={{ 
           display: 'flex', 
           gap: '32px', 
           alignItems: 'flex-start' 
         }}>
           {/* Left Side - Vertical Statistics Cards */}
-          <div style={{ 
+          <div className="sticky" style={{ 
             flex: '0 0 300px',
             position: 'sticky',
             top: '40px'
