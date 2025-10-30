@@ -221,13 +221,17 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     if (currentAssessment) {
       try {
         // Convert to API format
-        const apiAssessment = mapUiAssessmentToApi(currentAssessment);
+        const normalizedJobId = currentAssessment.jobId && currentAssessment.jobId.trim().length > 0
+          ? currentAssessment.jobId
+          : currentAssessment.id; // fallback to assessment id for demo storage
+        const apiAssessment = mapUiAssessmentToApi({ ...currentAssessment, jobId: normalizedJobId });
         
         // Save via API
-        await assessmentsApi.save(currentAssessment.jobId, apiAssessment);
+        await assessmentsApi.save(normalizedJobId, apiAssessment);
         
         const updatedAssessment = {
           ...currentAssessment,
+          jobId: normalizedJobId,
           updatedAt: new Date().toISOString().split('T')[0]
         };
         
@@ -2101,11 +2105,12 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                               try {
                                 const result = await generateAssessmentFromBrief(aiBrief || newAssessment.description, newAssessment.title);
                                 // Create assessment locally and open builder populated with questions
+                                const generatedId = Date.now().toString();
                                 const assessment: Assessment = {
-                                  id: Date.now().toString(),
+                                  id: generatedId,
                                   title: result.title,
                                   description: result.description,
-                                  jobId: newAssessment.jobId,
+                                  jobId: newAssessment.jobId || generatedId,
                                   createdAt: new Date().toISOString().split('T')[0],
                                   updatedAt: new Date().toISOString().split('T')[0],
                                   questions: result.questions.map((q, idx) => ({
