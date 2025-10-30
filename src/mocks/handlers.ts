@@ -78,6 +78,22 @@ export const handlers = [
     }
   }),
 
+  // Get job by ID
+  http.get('/api/jobs/:id', async ({ params }) => {
+    await delay(200 + Math.random() * 1000);
+    try {
+      const { id } = params;
+      const job = await db.jobs.get(id as string);
+      if (!job) {
+        return HttpResponse.json({ message: 'Job not found' }, { status: 404 });
+      }
+      return HttpResponse.json(job);
+    } catch (error) {
+      console.error('Error fetching job by id:', error);
+      return HttpResponse.json({ message: 'Failed to fetch job' }, { status: 500 });
+    }
+  }),
+
   // List all assessments
   http.get('/api/assessments', async () => {
     await delay(200 + Math.random() * 1000);

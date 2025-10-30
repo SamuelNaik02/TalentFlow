@@ -31,6 +31,7 @@ interface JobCardProps {
   job: Job;
   onEdit: (job: Job) => void;
   onView: (job: Job) => void;
+  onToggleArchive: (job: Job) => void;
   moveJob: (dragIndex: number, hoverIndex: number) => void;
   index: number;
 }
@@ -39,6 +40,7 @@ const JobCard: React.FC<JobCardProps> = ({
   job, 
   onEdit, 
   onView,
+  onToggleArchive,
   moveJob,
   index 
 }) => {
@@ -305,6 +307,28 @@ const JobCard: React.FC<JobCardProps> = ({
             <Edit size={14} />
             Edit
           </button>
+          <button
+            onClick={() => onToggleArchive(job)}
+            style={{
+              background: job.status === 'archived' ? 'white' : 'white',
+              border: `2px solid ${job.status === 'archived' ? '#28A745' : '#F05A3C'}`,
+              color: job.status === 'archived' ? '#28A745' : '#F05A3C',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              fontFamily: '"Inter", Arial, sans-serif',
+              fontWeight: 600
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = job.status === 'archived' ? '#E8F5E8' : '#FDEAE6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+            }}
+          >
+            {job.status === 'archived' ? 'Unarchive' : 'Archive'}
+          </button>
         </div>
       </div>
     </div>
@@ -378,7 +402,8 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
   };
 
   const handleView = (job: Job) => {
-    setViewingJob(job);
+    // deep link to job details route
+    navigate(`/jobs/${job.id}`);
   };
 
   const handleCloseDetails = () => {
@@ -406,6 +431,20 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
     fetchJobs();
     setEditingJob(null);
     setUseAICreation(false);
+  };
+
+  const handleToggleArchive = async (job: Job) => {
+    const newStatus = job.status === 'archived' ? 'active' : 'archived';
+    setJobs(prev => prev.map(j => j.id === job.id ? { ...j, status: newStatus } : j));
+    try {
+      await apiCall<Job>(`/jobs/${job.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus })
+      });
+    } catch (e) {
+      // rollback on failure
+      setJobs(prev => prev.map(j => j.id === job.id ? { ...j, status: job.status } : j));
+    }
   };
 
   const handleCloseModal = () => {
@@ -1187,6 +1226,7 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                     index={index}
                     onEdit={handleEdit}
                     onView={handleView}
+                    onToggleArchive={handleToggleArchive}
                     moveJob={moveJob}
                   />
                 ))}

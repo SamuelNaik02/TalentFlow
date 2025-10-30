@@ -3,6 +3,9 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import SimpleLoginPage from './components/SimpleLoginPage'
 import SimpleDashboard from './components/SimpleDashboard'
 import JobsManagement from './components/JobsManagement'
+import JobDetails from './components/JobDetails'
+import CandidateProfile from './components/CandidateProfile'
+import VirtualizedCandidatesList from './components/VirtualizedCandidatesList'
 import CandidatesPipeline from './components/CandidatesPipeline'
 import AssessmentBuilder from './components/AssessmentBuilder'
 import AssessmentsList from './components/AssessmentsList'
@@ -65,10 +68,40 @@ function App() {
             } 
           />
           <Route 
+            path="/jobs/:id" 
+            element={
+              isLoggedIn ? (
+                <JobDetails />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
             path="/candidates" 
             element={
               isLoggedIn ? (
                 <CandidatesPipeline onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/candidates-list" 
+            element={
+              isLoggedIn ? (
+                <VirtualizedCandidatesList />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/candidates/:id" 
+            element={
+              isLoggedIn ? (
+                <CandidateProfile />
               ) : (
                 <Navigate to="/login" replace />
               )

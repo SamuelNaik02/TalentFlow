@@ -53,6 +53,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   const [aiBrief, setAiBrief] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState('');
+  const [previewAnswers, setPreviewAnswers] = useState<Record<string, any>>({});
 
   // Helper to map API assessment to UI assessment format
   const mapApiAssessmentToUi = (apiAssessment: ApiAssessment): Assessment => {
@@ -619,6 +620,14 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   };
 
   const renderQuestionPreview = (question: Question, index: number) => {
+    // Conditional visibility
+    if (question.conditional && currentAssessment) {
+      const targetId = question.conditional.dependsOn;
+      const targetVal = previewAnswers[targetId];
+      const condVal = (question.conditional as any).value;
+      const shouldShow = question.conditional.condition === 'equals' ? targetVal === condVal : true;
+      if (!shouldShow) return null;
+    }
     return (
       <div key={question.id} style={{
         background: 'white',
@@ -647,7 +656,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           <div>
             {question.options?.map((option, index) => (
               <label key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <input type="radio" name={question.id} />
+                <input type="radio" name={question.id} onChange={() => setPreviewAnswers(prev => ({ ...prev, [question.id]: option }))} />
                 <span style={{ fontSize: '14px', color: '#222222' }}>{option}</span>
               </label>
             ))}
@@ -658,7 +667,11 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           <div>
             {question.options?.map((option, index) => (
               <label key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <input type="checkbox" />
+                <input type="checkbox" onChange={(e) => setPreviewAnswers(prev => {
+                  const cur = Array.isArray(prev[question.id]) ? prev[question.id] as string[] : [];
+                  const next = e.target.checked ? [...cur, option] : cur.filter(o => o !== option);
+                  return { ...prev, [question.id]: next };
+                })} />
                 <span style={{ fontSize: '14px', color: '#222222' }}>{option}</span>
               </label>
             ))}
@@ -679,6 +692,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
               color: '#222222',
               background: 'white'
             }}
+          onChange={(e) => setPreviewAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
           />
         )}
 
@@ -697,6 +711,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
               color: '#222222',
               background: 'white'
             }}
+          onChange={(e) => setPreviewAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
           />
         )}
 
@@ -715,6 +730,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
               color: '#222222',
               background: 'white'
             }}
+          onChange={(e) => setPreviewAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
           />
         )}
 

@@ -106,6 +106,30 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
     return Object.keys(newErrors).length === 0;
   };
 
+  const isSlugUnique = async (slug: string): Promise<boolean> => {
+    try {
+      // fetch many to check uniqueness client-side
+      const res = await apiCall<{ data: Job[]; total: number; page: number; pageSize: number; totalPages: number }>(`/jobs?page=1&pageSize=2000&sort=order`);
+      const exists = res.data.some(j => j.slug === slug && (!job || j.id !== job.id));
+      return !exists;
+    } catch {
+      // if API fails, skip uniqueness check
+      return true;
+    }
+  };
+
+  const validateFormWithSlug = async () => {
+    const baseValid = validateForm();
+    if (!baseValid) return false;
+    const slug = formData.title.toLowerCase().replace(/\s+/g, '-');
+    const unique = await isSlugUnique(slug);
+    if (!unique) {
+      setErrors(prev => ({ ...prev, title: 'Title slug must be unique' }));
+      return false;
+    }
+    return true;
+  };
+
   const handleGenerateJob = async () => {
     if (!jobDescription.trim()) {
       setErrors({ description: 'Please provide a job description' });
@@ -892,7 +916,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                         type="button"
                         onClick={async (e) => {
                           e.preventDefault();
-                          if (validateForm()) {
+                          if (await validateFormWithSlug()) {
                             setLoading(true);
                             try {
                               const jobData = {
@@ -1503,7 +1527,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                       type="button"
                       onClick={async (e) => {
                         e.preventDefault();
-                        if (validateForm()) {
+                          if (await validateFormWithSlug()) {
                           setLoading(true);
                           try {
                             const jobData = {
