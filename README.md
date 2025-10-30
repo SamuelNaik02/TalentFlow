@@ -228,6 +228,37 @@ talentflow/
 - ✅ **Interactive Charts** - SVG-based charts with hover effects and tooltips
 - ✅ **Consistent UI/UX** - Unified color scheme and font styles across all pages
 
+## 🧭 Architecture
+
+High-level layout:
+
+- Client: React 18 + TypeScript (Vite)
+- State: Local component state + small helpers; persistent data lives in IndexedDB (Dexie)
+- Data layer: `services/api.ts` is the single fetch gateway with offline queue via `offlineService`
+- Mock backend: MSW (`src/mocks`) intercepts `/api/*` and reads/writes IndexedDB so the app runs on GitHub Pages
+- Auth: Firebase Auth (email/password, Google). On Pages we auto‑fallback to redirect auth to avoid popup/COOP issues
+- AI: `services/geminiService.ts` wraps Google Generative Language API with retry and model fallbacks
+
+Data flow (simplified):
+
+1. UI → `services/api.ts` → fetch `/api/*`
+2. MSW handler (in `mocks/handlers.ts`) serves/updates IndexedDB (`db/database.ts`)
+3. UI updates local state and logs activity via `activityService`
+
+Why this architecture:
+
+- Works fully on static hosting (GitHub Pages) with real‑world UX
+- Offline‑first: write ops queue while offline and replay later
+- Separation of concerns: components (UI), services (I/O), db (persistence), mocks (network facade)
+
+Key modules:
+
+- `src/db/database.ts`: Dexie schema + seeding
+- `src/mocks/handlers.ts`: REST routes for jobs/candidates/assessments
+- `src/services/api.ts`: API gateway + offline queue
+- `src/services/geminiService.ts`: AI generation (retry/backoff/model filter)
+- `src/components/Stepper.tsx`: reusable stepper
+
 ## 📝 Usage
 
 ### Sign In
@@ -272,6 +303,36 @@ talentflow/
 - [Firebase Setup Guide](./FIREBASE_SETUP.md)
 - [Firebase Email Templates Setup](./FIREBASE_EMAIL_TEMPLATES.md)
 - [Firebase Console](https://console.firebase.google.com/)
+
+## 🧠 Technical Decisions & Trade‑offs
+
+- Serverless delivery on GitHub Pages
+  - Decision: MSW + IndexedDB emulate a backend.
+  - Trade‑off: No multi‑user sync; ideal for demo/offline, not a shared prod backend.
+
+- Offline‑first API gateway
+  - Decision: All network goes through `api.ts`; queue writes when offline.
+  - Trade‑off: Simple conflict policy (last‑write‑wins) in local store.
+
+- AI robustness
+  - Decision: Filter non‑text models, add exponential backoff and model fallbacks to mitigate 404/429.
+  - Trade‑off: Slightly higher latency during retries.
+
+- Auth on Pages (COOP/popup constraints)
+  - Decision: Try popup, auto‑fallback to `signInWithRedirect` + result handler.
+  - Trade‑off: Redirect UX vs popup convenience.
+
+- Routing for Pages
+  - Decision: `HashRouter` to avoid 404s on deep links.
+  - Trade‑off: Hash URLs aren’t as clean as history API routes.
+
+- Styling
+  - Decision: Inline styles for speed; global responsive helpers in `App.css` and targeted media queries.
+  - Trade‑off: Less centralized theming than CSS‑in‑JS/Tailwind.
+
+- Stepper‑based flows
+  - Decision: Share one Stepper across jobs, collaboration, workflows, AI flows.
+  - Trade‑off: Some customization handled via props and light overrides.
 
 ## 📧 Welcome Emails
 
