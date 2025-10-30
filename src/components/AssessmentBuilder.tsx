@@ -5,6 +5,7 @@ import { createAssessmentActivity } from '../services/activityService';
 import Stepper, { Step } from './Stepper';
 import { assessmentsApi } from '../services/api';
 import type { Assessment as ApiAssessment } from '../types';
+import { generateAssessmentFromBrief } from '../services/geminiService';
 
 interface Question {
   id: string;
@@ -48,6 +49,10 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     description: '',
     jobId: ''
   });
+  const [creationMode, setCreationMode] = useState<'ai' | 'manual' | ''>('');
+  const [aiBrief, setAiBrief] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   // Helper to map API assessment to UI assessment format
   const mapApiAssessmentToUi = (apiAssessment: ApiAssessment): Assessment => {
@@ -263,7 +268,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     }
   };
 
-  const renderQuestionBuilder = (question: Question) => {
+  const renderQuestionBuilder = (question: Question, index: number) => {
     return (
       <div key={question.id} style={{
         background: 'white',
@@ -281,7 +286,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           border: '1px solid #E9ECEF'
         }}>
           <h4 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 8px 0', color: '#222222' }}>
-            {question.title || 'Untitled Question'}
+            {index + 1}. {question.title || 'Untitled Question'}
             {question.required && <span style={{ color: '#DC3545' }}> *</span>}
           </h4>
           {question.description && (
@@ -609,7 +614,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
     );
   };
 
-  const renderQuestionPreview = (question: Question) => {
+  const renderQuestionPreview = (question: Question, index: number) => {
     return (
       <div key={question.id} style={{
         background: 'white',
@@ -625,7 +630,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
           color: '#222222',
           lineHeight: '1.4'
         }}>
-          {question.title || 'Untitled Question'}
+          {index + 1}. {question.title || 'Untitled Question'}
           {question.required && <span style={{ color: '#DC3545' }}> *</span>}
         </h4>
         {question.description && (
@@ -1731,14 +1736,14 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                       <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 16px 0' }}>
                         Preview:
                       </h3>
-                      {currentAssessment.questions.map(renderQuestionPreview)}
+                      {currentAssessment.questions.map((q, i) => renderQuestionPreview(q, i))}
                     </div>
                   ) : (
                     <div>
                       <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 16px 0' }}>
                         Questions:
                       </h3>
-                      {currentAssessment.questions.map(renderQuestionBuilder)}
+                      {currentAssessment.questions.map((q, i) => renderQuestionBuilder(q, i))}
                     </div>
                   )}
                 </div>
@@ -1911,10 +1916,51 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                 stepCircleContainerClassName=""
                 stepContainerClassName=""
                 contentClassName=""
-                footerClassName=""
+                footerClassName={creationMode === 'ai' ? 'ai-hide-footer' : ''}
               >
                 <Step>
                   <div style={{ padding: '20px' }}>
+                    {/* Mode selection */}
+                    <div style={{
+                      background: '#FFF7F3',
+                      border: '1px solid #FFE1D6',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      marginBottom: '16px',
+                      color: '#8A3B2E'
+                    }}>
+                      Choose how you want to create this assessment: using AI or manually.
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setCreationMode('ai')}
+                        style={{
+                          background: creationMode === 'ai' ? '#F06B4E' : 'white',
+                          color: creationMode === 'ai' ? 'white' : '#222222',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          padding: '10px 14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🤖 Use AI
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCreationMode('manual')}
+                        style={{
+                          background: creationMode === 'manual' ? '#1A3C34' : 'white',
+                          color: creationMode === 'manual' ? 'white' : '#222222',
+                          border: '1px solid #E0E0E0',
+                          borderRadius: '8px',
+                          padding: '10px 14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✍️ Build Manually
+                      </button>
+                    </div>
                     <h3 style={{ 
                       fontSize: '18px', 
                       fontWeight: '600', 
@@ -1956,6 +2002,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                       />
                     </div>
                     
+                    {creationMode !== 'ai' && (
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{ 
                         display: 'block', 
@@ -1989,7 +2036,9 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                         onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
                       />
                     </div>
+                    )}
                     
+                    {creationMode !== 'ai' && (
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{ 
                         display: 'block', 
@@ -2021,9 +2070,83 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                         onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
                       />
                     </div>
+                    )}
+
+                    {creationMode === 'ai' && (
+                      <div style={{ marginTop: '16px' }}>
+                        <label style={{
+                          display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#222222'
+                        }}>
+                          AI Brief (what skills to test, seniority, focus areas)
+                        </label>
+                        <textarea
+                          value={aiBrief}
+                          onChange={(e) => setAiBrief(e.target.value)}
+                          placeholder="E.g., Senior Frontend Developer; React, TypeScript, accessibility, problem solving; include a short case study and a file upload for code sample."
+                          rows={4}
+                          style={{
+                            width: '100%', padding: '12px 16px', border: '1px solid #E0E0E0', borderRadius: '8px', background: 'white', color: '#222222'
+                          }}
+                        />
+                        {aiError && (
+                          <div style={{ color: '#C62828', fontSize: '12px', marginTop: '8px' }}>{aiError}</div>
+                        )}
+                        <div style={{ marginTop: '12px' }}>
+                          <button
+                            type="button"
+                            disabled={aiLoading || !newAssessment.title.trim()}
+                            onClick={async () => {
+                              setAiError('');
+                              setAiLoading(true);
+                              try {
+                                const result = await generateAssessmentFromBrief(aiBrief || newAssessment.description, newAssessment.title);
+                                // Create assessment locally and open builder populated with questions
+                                const assessment: Assessment = {
+                                  id: Date.now().toString(),
+                                  title: result.title,
+                                  description: result.description,
+                                  jobId: newAssessment.jobId,
+                                  createdAt: new Date().toISOString().split('T')[0],
+                                  updatedAt: new Date().toISOString().split('T')[0],
+                                  questions: result.questions.map((q, idx) => ({
+                                    id: q.id || `q${idx+1}`,
+                                    type: q.type,
+                                    title: q.title,
+                                    description: q.description,
+                                    required: q.required,
+                                    options: q.options,
+                                    min: q.min,
+                                    max: q.max,
+                                    maxLength: q.maxLength
+                                  }))
+                                };
+                                setAssessments([...assessments, assessment]);
+                                setCurrentAssessment(assessment);
+                                setShowCreateModal(false);
+                              } catch (err: any) {
+                                setAiError(err?.message || 'Failed to generate assessment');
+                              } finally {
+                                setAiLoading(false);
+                              }
+                            }}
+                            style={{
+                              background: aiLoading ? '#CCCCCC' : '#F06B4E',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              padding: '10px 16px',
+                              cursor: aiLoading ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            {aiLoading ? 'Generating…' : 'Generate with AI'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </Step>
 
+                {creationMode !== 'ai' && (
                 <Step>
                   <div style={{ padding: '20px', textAlign: 'center' }}>
                     <h3 style={{ 
@@ -2070,7 +2193,13 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                     </p>
                   </div>
                 </Step>
+                )}
               </Stepper>
+              {creationMode === 'ai' && (
+                <style>{`
+                  .ai-hide-footer { display: none !important; }
+                `}</style>
+              )}
             </div>
           </div>
         )}

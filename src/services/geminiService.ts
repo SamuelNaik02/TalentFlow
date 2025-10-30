@@ -52,6 +52,10 @@ export async function generateJobFromDescription(description: string): Promise<G
   },
   "tags": ["tag1", "tag2", "tag3", "tag4"]
 }
+ 
+  // prompt defined above
+
+// (assessment generation definitions appended after job generation below)
 
 Job description provided by user:
 ${description}
@@ -82,7 +86,8 @@ Generate a professional job posting JSON object:`;
           const match = name.match(/models\/(.+)$/);
           return match ? match[1] : null;
         })
-        .filter((name): name is string => name !== null && !name.includes('/'));
+        .filter((name): name is string => name !== null && !name.includes('/'))
+        .filter((name) => !/embedding/i.test(name));
       
       // Add endpoints from available models (prioritize them)
       if (modelNames.length > 0) {
@@ -98,23 +103,30 @@ Generate a professional job posting JSON object:`;
 
     let lastError: Error | null = null;
     
+    // Helper: retry with backoff on 429
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+    const requestWithRetry = async (url: string, body: string) => {
+      const maxRetries = 3;
+      let attempt = 0;
+      let lastText = '';
+      while (attempt <= maxRetries) {
+        const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+        lastText = await resp.text();
+        if (resp.status !== 429) return { resp, text: lastText };
+        await delay(500 * Math.pow(2, attempt));
+        attempt += 1;
+      }
+      return { resp: new Response(lastText, { status: 429 }), text: lastText };
+    };
+
     // Try different endpoints in order
     for (const url of endpointsToTry) {
       try {
         console.log('Trying Gemini API:', url);
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: requestBody
-        });
+        const { resp: response, text: responseText } = await requestWithRetry(url, requestBody);
 
         console.log('Gemini API response status:', response.status, response.statusText);
 
-        // Read response body as text first (we can then parse JSON if needed)
-        const responseText = await response.text();
-        
         if (!response.ok) {
           // Try to get error details from response
           let errorMessage = `Gemini API error: ${response.status} ${response.statusText}`;
@@ -190,4 +202,124 @@ Generate a professional job posting JSON object:`;
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate job details. Please try again or create manually.';
     throw new Error(errorMessage);
   }
+}
+
+// ===== Assessments Generation =====
+export type GeneratedQuestionType = 'single-choice' | 'multiple-choice' | 'short-text' | 'long-text' | 'numeric' | 'file-upload';
+
+export interface GeneratedAssessmentQuestion {
+  id: string;
+  type: GeneratedQuestionType;
+  title: string;
+  description?: string;
+  required: boolean;
+  options?: string[];
+  min?: number;
+  max?: number;
+  maxLength?: number;
+}
+
+export interface GeneratedAssessmentDetails {
+  title: string;
+  description: string;
+  questions: GeneratedAssessmentQuestion[];
+}
+
+export async function generateAssessmentFromBrief(brief: string, role: string): Promise<GeneratedAssessmentDetails> {
+  const prompt = `You are an experienced assessment designer for hiring. Based on the brief and role below, generate a structured assessment.
+
+Return ONLY valid JSON with this shape (no markdown, no commentary):
+{
+  "title": "Assessment title",
+  "description": "Short description",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single-choice|multiple-choice|short-text|long-text|numeric|file-upload",
+      "title": "Question text",
+      "description": "Optional helper text",
+      "required": true,
+      "options": ["A","B","C"],
+      "min": 0,
+      "max": 10,
+      "maxLength": 200
+    }
+  ]
+}
+
+Rules:
+- Prefer 6-10 questions balanced across: single-choice, multiple-choice, short-text, long-text, numeric (with min/max), and one file-upload (e.g., portfolio/case study).
+- For numeric questions always include sensible min/max.
+- For text questions include maxLength (100 for short, 500 for long) when appropriate.
+- For choice questions always include 3-5 options.
+
+Role: ${role}
+Brief: ${brief}
+Generate the JSON now:`;
+
+  const requestBody = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
+
+  let endpointsToTry = [...GEMINI_ENDPOINTS];
+  const availableModels = await listAvailableModels();
+  if (availableModels.length > 0) {
+    const modelNames = availableModels
+      .map((name: string) => name.match(/models\/(.+)$/)?.[1] || null)
+      .filter((n): n is string => !!n && !n.includes('/'))
+      .filter((n) => !/embedding/i.test(n));
+    const additional = modelNames
+      .filter(m => !endpointsToTry.some(url => url.includes(`models/${m}:`)))
+      .map(m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_API_KEY}`);
+    endpointsToTry = [...additional, ...endpointsToTry];
+  }
+
+  let lastError: Error | null = null;
+  // Retry helper on 429
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+  const requestWithRetry = async (url: string, body: string) => {
+    const maxRetries = 3; let attempt = 0; let lastText = '';
+    while (attempt <= maxRetries) {
+      const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+      lastText = await resp.text();
+      if (resp.status !== 429) return { resp, text: lastText };
+      await delay(500 * Math.pow(2, attempt));
+      attempt += 1;
+    }
+    return { resp: new Response(lastText, { status: 429 }), text: lastText };
+  };
+
+  for (const url of endpointsToTry) {
+    try {
+      const { resp: response, text: responseText } = await requestWithRetry(url, requestBody);
+      if (!response.ok) { lastError = new Error(`${response.status} ${response.statusText} - ${responseText.substring(0,200)}`); continue; }
+      const data = JSON.parse(responseText);
+      let text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (!text) { lastError = new Error('No content generated'); continue; }
+      if (text.startsWith('```')) text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) text = match[0];
+
+      const parsed = JSON.parse(text);
+      const questions: GeneratedAssessmentQuestion[] = Array.isArray(parsed.questions) ? parsed.questions.map((q: any, idx: number) => ({
+        id: q.id || `q${idx+1}`,
+        type: (q.type || 'short-text') as GeneratedQuestionType,
+        title: q.title || `Question ${idx+1}`,
+        description: q.description || undefined,
+        required: typeof q.required === 'boolean' ? q.required : true,
+        options: Array.isArray(q.options) ? q.options : undefined,
+        min: typeof q.min === 'number' ? q.min : undefined,
+        max: typeof q.max === 'number' ? q.max : undefined,
+        maxLength: typeof q.maxLength === 'number' ? q.maxLength : undefined
+      })) : [];
+
+      return {
+        title: parsed.title || `${role} Assessment`,
+        description: parsed.description || 'Auto-generated assessment.',
+        questions
+      };
+    } catch (e: any) {
+      lastError = e instanceof Error ? e : new Error(String(e));
+      continue;
+    }
+  }
+  throw lastError || new Error('Failed to generate assessment');
 }

@@ -29,6 +29,8 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 8,
   fontSize: 14,
   outline: 'none',
+  background: COLORS.white,
+  color: COLORS.text,
 }
 
 const sectionCardStyle: React.CSSProperties = {
@@ -581,6 +583,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
 
       {/* Content */}
       <div style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
         <h1 style={{ fontSize: 32, margin: '0 0 16px 0', fontWeight: 'bold', fontFamily: '"Montserrat", Arial, sans-serif' }}>
           <span style={{ color: '#F05A3C' }}>PRO</span><span style={{ color: '#1A3C34' }}>FILE</span>
         </h1>
@@ -593,7 +596,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
           fontWeight: '400'
         }}>Manage your personal information, security, and preferences.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16, maxWidth: 1000 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
           {/* Header card: Avatar and summary */}
           <div style={sectionCardStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -644,10 +647,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
                 onClick={saveProfile}
                 style={{
                   padding: '8px 12px',
-                  background: COLORS.brand,
+                  background: COLORS.accent,
                   color: COLORS.white,
                   borderRadius: 8,
-                  border: `1px solid ${COLORS.brand}`,
+                  border: `1px solid ${COLORS.accent}`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.brand
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.brand}`
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.accent
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.accent}`
                 }}
               >
                 Save
@@ -714,10 +725,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
                 onClick={saveSecurity}
                 style={{
                   padding: '8px 12px',
-                  background: COLORS.brand,
+                  background: COLORS.accent,
                   color: COLORS.white,
                   borderRadius: 8,
-                  border: `1px solid ${COLORS.brand}`,
+                  border: `1px solid ${COLORS.accent}`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.brand
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.brand}`
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.accent
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.accent}`
                 }}
               >
                 Save
@@ -756,10 +775,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
                 onClick={savePreferences}
                 style={{
                   padding: '8px 12px',
-                  background: COLORS.brand,
+                  background: COLORS.accent,
                   color: COLORS.white,
                   borderRadius: 8,
-                  border: `1px solid ${COLORS.brand}`,
+                  border: `1px solid ${COLORS.accent}`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.brand
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.brand}`
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = COLORS.accent
+                  ;(e.currentTarget as HTMLButtonElement).style.border = `1px solid ${COLORS.accent}`
                 }}
               >
                 Save
@@ -784,6 +811,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
               </label>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
