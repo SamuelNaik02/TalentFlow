@@ -448,6 +448,7 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 
                 {/* Profile Settings */}
                 <div 
+                  onClick={() => navigate('/profile')}
                   style={{
                     padding: '16px 0',
                     borderBottom: '1px solid #E0E0E0',
