@@ -1,5 +1,9 @@
 # TalentFlow - Mini Hiring Platform
 
+[![Deploy to GitHub Pages](https://github.com/SamuelNaik02/TalentFlow/actions/workflows/deploy.yml/badge.svg)](https://github.com/SamuelNaik02/TalentFlow/actions/workflows/deploy.yml)
+
+Live demo: https://samuelnaik02.github.io/TalentFlow/
+
 A comprehensive React-based hiring platform for HR teams to manage jobs, candidates, and assessments.
 
 **Created by:** SamuelNaik02
