@@ -43,9 +43,18 @@ const sectionCardStyle: React.CSSProperties = {
 const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
   const navigate = useNavigate()
 
-  const [firstName, setFirstName] = useState('Alex')
-  const [lastName, setLastName] = useState('Morgan')
-  const [email, setEmail] = useState('alex.morgan@example.com')
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem('talentflow-user') || 'null') } catch { return null }
+  })()
+  const initialFirst = storedUser?.displayName ? String(storedUser.displayName).split(' ')[0] : 'Alex'
+  const initialLast = storedUser?.displayName && String(storedUser.displayName).includes(' ')
+    ? String(storedUser.displayName).split(' ').slice(1).join(' ')
+    : 'Morgan'
+  const initialEmail = storedUser?.email || 'alex.morgan@example.com'
+
+  const [firstName, setFirstName] = useState(initialFirst)
+  const [lastName, setLastName] = useState(initialLast)
+  const [email, setEmail] = useState(initialEmail)
   const [role, setRole] = useState('Recruiter')
   const [twoFA, setTwoFA] = useState(false)
   const [newsletter, setNewsletter] = useState(true)
@@ -53,6 +62,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
   const saveProfile = () => {
     // In real app, persist to API
     // For now, provide a subtle feedback
+    localStorage.setItem('talentflow-user', JSON.stringify({
+      ...(storedUser || {}),
+      displayName: `${firstName} ${lastName}`.trim(),
+      email
+    }))
     alert('Profile updated successfully')
   }
 

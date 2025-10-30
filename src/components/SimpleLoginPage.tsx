@@ -24,6 +24,11 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     if (activeTab === 'signin') {
       const result = await signInWithEmail(email, password);
       if (result.user) {
+        localStorage.setItem('talentflow-user', JSON.stringify({
+          uid: result.user.uid,
+          displayName: result.user.displayName || email.split('@')[0],
+          email: result.user.email || email
+        }));
         onLogin();
         navigate('/dashboard');
       } else {
@@ -32,6 +37,11 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     } else {
       const result = await signUpWithEmail(email, password);
       if (result.user) {
+        localStorage.setItem('talentflow-user', JSON.stringify({
+          uid: result.user.uid,
+          displayName: username || email.split('@')[0],
+          email: result.user.email || email
+        }));
         onLogin();
         navigate('/dashboard');
       } else {
@@ -46,6 +56,11 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     setLoading(true);
     const result = await signInWithGoogle();
     if (result.user) {
+      localStorage.setItem('talentflow-user', JSON.stringify({
+        uid: result.user.uid,
+        displayName: result.user.displayName || (result.user.email ? result.user.email.split('@')[0] : 'User'),
+        email: result.user.email || ''
+      }));
       onLogin();
       navigate('/dashboard');
     } else {
