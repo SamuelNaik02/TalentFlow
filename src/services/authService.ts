@@ -3,6 +3,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   sendPasswordResetEmail,
   sendEmailVerification
@@ -63,10 +65,26 @@ export const signInWithGoogle = async () => {
       error: null
     };
   } catch (error: any) {
-    return {
-      user: null,
-      error: error.message || 'An error occurred'
-    };
+    // Fallback to redirect to avoid popup/COOP issues on some browsers/environments (e.g., GitHub Pages)
+    try {
+      await signInWithRedirect(auth, googleProvider);
+      return { user: null, error: null };
+    } catch (redirectErr: any) {
+      return {
+        user: null,
+        error: redirectErr?.message || error?.message || 'An error occurred'
+      };
+    }
+  }
+};
+
+// Check for a redirect result (used after signInWithRedirect)
+export const getGoogleRedirectResult = async () => {
+  try {
+    const res = await getRedirectResult(auth);
+    return res?.user || null;
+  } catch (e) {
+    return null;
   }
 };
 

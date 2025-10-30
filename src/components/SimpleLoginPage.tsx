@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Shuffle from './Shuffle';
 import LightRays from './LightRays';
-import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword } from '../services/authService';
+import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword, getGoogleRedirectResult } from '../services/authService';
 
 const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -68,6 +68,22 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     }
     setLoading(false);
   };
+
+  // Handle Google redirect result (after COOP-safe fallback)
+  useEffect(() => {
+    (async () => {
+      const user = await getGoogleRedirectResult();
+      if (user) {
+        localStorage.setItem('talentflow-user', JSON.stringify({
+          uid: user.uid,
+          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+          email: user.email || ''
+        }));
+        onLogin();
+        navigate('/dashboard');
+      }
+    })();
+  }, []);
 
   const handleResetPassword = async () => {
     if (!email) {
