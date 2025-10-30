@@ -183,15 +183,14 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
         </div>
       </div>
       
-      <div style={{ 
+      <div className="login-container" style={{ 
         display: 'flex', 
         height: '100vh', 
         fontFamily: 'Arial, sans-serif' 
       }}>
       {/* Left Panel */}
-      <div style={{ 
+      <div className="login-left-panel" style={{ 
         backgroundColor: '#1A3C34', 
-        width: '40%', 
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'center', 
@@ -323,9 +322,8 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
       </div>
 
       {/* Right Panel */}
-      <div style={{ 
+      <div className="login-right-panel" style={{ 
         backgroundColor: '#FFFFFF', 
-        width: '60%', 
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'center', 
@@ -628,6 +626,15 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
          </div>
        </div>
      </div>
+    <style>{`
+      /* Force mobile stacking in case inline styles conflict */
+      @media (max-width: 768px) {
+        .login-container { flex-direction: column !important; }
+        .login-left-panel, .login-right-panel { width: 100% !important; padding: 40px 20px !important; }
+        .login-left-panel { height: auto !important; min-height: 40vh !important; }
+        .login-right-panel { height: auto !important; min-height: 60vh !important; }
+      }
+    `}</style>
      </>
    );
  };
