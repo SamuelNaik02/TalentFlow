@@ -964,7 +964,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   };
 
   return (
-    <div style={{ 
+    <div className="assessments-page" style={{ 
       display: 'flex', 
       flexDirection: 'column', 
       height: '100vh',
@@ -1466,7 +1466,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
       </div>
 
       {/* Main Content */}
-      <div className="hide-scrollbar" style={{ 
+      <div className="hide-scrollbar assessments-content" style={{ 
         flex: 1, 
         padding: '40px', 
         overflowY: 'auto', 
@@ -1475,7 +1475,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
         width: '100%'
       }}>
         {/* Page Header */}
-        <div style={{ 
+        <div className="assessments-hero" style={{ 
           background: 'linear-gradient(135deg, #1A3C34 0%, #2D5A4F 100%)', 
           padding: '40px', 
           borderRadius: '12px', 
@@ -1595,7 +1595,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
 
         {/* Assessment List */}
         {!currentAssessment && (
-          <div style={{ 
+          <div className="assessments-grid" style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', 
             gap: '24px',
@@ -1659,7 +1659,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
 
         {/* Assessment Builder */}
         {currentAssessment && (
-          <div style={{ display: 'flex', gap: '30px' }}>
+          <div className="assessments-two-col" style={{ display: 'flex', gap: '30px' }}>
             {/* Builder Panel */}
             <div style={{ flex: 1 }}>
               <div style={{ 
@@ -1796,7 +1796,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
 
             {/* Preview Panel */}
             {!previewMode && (
-              <div style={{ width: '400px' }}>
+              <div className="preview-panel" style={{ width: '400px' }}>
                 <div style={{ 
                   background: 'white', 
                   padding: '30px', 
@@ -2253,6 +2253,25 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
         </button>
       </div>
     </div>
+    <style>{`
+      /* Responsive tweaks for assessments page */
+      @media (max-width: 1200px) {
+        .assessments-content { padding: 24px !important; }
+      }
+      @media (max-width: 1024px) {
+        .assessments-two-col { flex-direction: column !important; }
+        .preview-panel { width: 100% !important; position: static !important; top: auto !important; margin-top: 20px !important; }
+        .assessments-hero { padding: 24px !important; }
+      }
+      @media (max-width: 768px) {
+        .assessments-grid { grid-template-columns: 1fr !important; }
+      }
+      @media (max-width: 600px) {
+        .assessments-content { padding: 16px !important; }
+        .assessments-hero h1 { font-size: 22px !important; }
+        .assessments-hero p { font-size: 14px !important; }
+      }
+    `}</style>
   );
 };
 
