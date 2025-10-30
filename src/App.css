@@ -561,3 +561,22 @@ body {
   .App h3 { font-size: 15px !important; }
   .grid, .assessments-grid, .cards-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 16px !important; }
 }
+
+/* Fallback responsive overrides for legacy inline styles across pages */
+@media (max-width: 768px) {
+  /* Stack generic flex rows that use gap inline styles */
+  div[style*="display: flex"][style*="gap"]:not(.keep-row) { flex-direction: column !important; }
+  /* Neutralize sticky sidebars */
+  [style*="position: sticky"], .sticky { position: static !important; top: auto !important; }
+  /* Make fixed widths fluid */
+  [style*="width: 400px"], [style*="width: 350px"], [style*="width: 300px"], [style*="width: 60%"], [style*="width: 40%"], [style*="max-width: 600px"] {
+    width: 100% !important; max-width: 100% !important;
+  }
+  /* Reduce container paddings from inline styles */
+  [style*="padding: 40px"] { padding: 20px !important; }
+  [style*="padding: 30px"] { padding: 20px !important; }
+  /* Ensure large max-width wrappers still center and have padding */
+  [style*="max-width: 1200px"], [style*="max-width: 1400px"], [style*="max-width: 1000px"] {
+    padding-left: 16px !important; padding-right: 16px !important; width: 100% !important;
+  }
+}
