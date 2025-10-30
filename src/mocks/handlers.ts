@@ -5,8 +5,8 @@ import { db } from '../db/database';
 // Helper function to simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Helper function to simulate random errors
-const shouldError = () => Math.random() < 0.1; // 10% error rate
+// Helper function to simulate random errors on WRITE endpoints only (5–10%)
+const shouldWriteError = () => Math.random() < (0.05 + Math.random() * 0.05);
 
 // Utility function to generate unique IDs
 const generateId = () => `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -21,9 +21,6 @@ export const handlers = [
   http.get('/api/jobs', async ({ request }) => {
     await delay(200 + Math.random() * 1000); // 200-1200ms delay
     
-    if (shouldError()) {
-      return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
 
     try {
       const url = new URL(request.url);
@@ -96,7 +93,7 @@ export const handlers = [
   http.post('/api/jobs', async ({ request }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to create job' }, { status: 500 });
     }
 
@@ -128,7 +125,7 @@ export const handlers = [
   http.patch('/api/jobs/:id', async ({ request, params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to update job' }, { status: 500 });
     }
 
@@ -161,7 +158,7 @@ export const handlers = [
   http.patch('/api/jobs/:id/reorder', async ({ request, params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to reorder jobs' }, { status: 500 });
     }
 
@@ -206,7 +203,7 @@ export const handlers = [
   http.delete('/api/jobs/:id', async ({ params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to delete job' }, { status: 500 });
     }
 
@@ -233,9 +230,6 @@ export const handlers = [
   http.get('/api/candidates', async ({ request }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
-      return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
 
     try {
       const url = new URL(request.url);
@@ -288,9 +282,6 @@ export const handlers = [
   http.get('/api/candidates/:id', async ({ params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
-      return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
 
     try {
       const { id } = params;
@@ -310,7 +301,7 @@ export const handlers = [
   http.post('/api/candidates', async ({ request }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to create candidate' }, { status: 500 });
     }
 
@@ -337,7 +328,7 @@ export const handlers = [
   http.patch('/api/candidates/:id', async ({ request, params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to update candidate' }, { status: 500 });
     }
 
@@ -370,9 +361,6 @@ export const handlers = [
   http.get('/api/candidates/:id/timeline', async ({ params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
-      return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
 
     try {
       const { id } = params;
@@ -394,9 +382,6 @@ export const handlers = [
   http.get('/api/assessments/:jobId', async ({ params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
-      return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
-    }
 
     try {
       const { jobId } = params;
@@ -416,7 +401,7 @@ export const handlers = [
   http.put('/api/assessments/:jobId', async ({ request, params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to save assessment' }, { status: 500 });
     }
 
@@ -459,7 +444,7 @@ export const handlers = [
   http.post('/api/assessments/:jobId/submit', async ({ request, params }) => {
     await delay(200 + Math.random() * 1000);
     
-    if (shouldError()) {
+    if (shouldWriteError()) {
       return HttpResponse.json({ message: 'Failed to submit assessment' }, { status: 500 });
     }
 
