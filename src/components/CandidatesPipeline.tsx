@@ -33,6 +33,8 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
   const [draggedCandidate, setDraggedCandidate] = useState<Candidate | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [newCandidate, setNewCandidate] = useState({
     name: '',
     email: '',
@@ -1036,7 +1038,7 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                           }}>
                             {candidate.name.charAt(0)}
                           </div>
-                          <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <h4 style={{ 
                               fontSize: '14px', 
                               fontWeight: '600', 
@@ -1045,6 +1047,22 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                             }}>
                               {candidate.name}
                             </h4>
+                            <button
+                              title="View"
+                              onClick={() => { setSelectedCandidate(candidate); setShowDetailsModal(true); }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                cursor: 'pointer',
+                                color: '#666666'
+                              }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>
+                            </button>
                             <p style={{ 
                               fontSize: '12px', 
                               color: '#666666', 
@@ -2026,6 +2044,66 @@ const CandidatesPipeline: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   </div>
                 );
               })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Candidate Details Modal */}
+      {showDetailsModal && selectedCandidate && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200
+        }}
+        onClick={() => setShowDetailsModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            width: '560px',
+            maxWidth: '90vw',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.2)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #E0E0E0' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#1A3C34', fontFamily: '"Montserrat", Arial, sans-serif' }}>Candidate Details</h3>
+              <button onClick={() => setShowDetailsModal(false)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#666' }}>×</button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F0F8FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1A3C34', fontWeight: 700 }}>
+                  {selectedCandidate.name.charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#222' }}>{selectedCandidate.name}</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{selectedCandidate.jobTitle || '—'} • {selectedCandidate.stage}</div>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ fontSize: '13px', color: '#222' }}><strong>Email:</strong> {selectedCandidate.email}</div>
+                <div style={{ fontSize: '13px', color: '#222' }}><strong>Phone:</strong> {selectedCandidate.phone || '—'}</div>
+                <div style={{ fontSize: '13px', color: '#222' }}><strong>Applied:</strong> {new Date(selectedCandidate.appliedDate).toLocaleDateString()}</div>
+                <div style={{ fontSize: '13px', color: '#222' }}><strong>Rating:</strong> {selectedCandidate.rating}</div>
+              </div>
+              {selectedCandidate.notes.length > 0 && (
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1A3C34', marginBottom: '6px' }}>Notes</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
+                    {selectedCandidate.notes.map((n, i) => (
+                      <div key={i} style={{ background: '#F8F9FA', border: '1px solid #E0E0E0', borderRadius: '8px', padding: '8px 10px', fontSize: '12px', color: '#444' }}>{n}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
