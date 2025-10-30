@@ -10,13 +10,18 @@ const initializeApp = async () => {
     // Initialize IndexedDB with seed data if empty
     await initializeDatabase();
     
-    // Start MSW in development
-    if (import.meta.env.DEV) {
+    // Start MSW in all environments (needed for GitHub Pages demo where API is mocked)
+    try {
       const { worker } = await import('./mocks/browser');
       await worker.start({
-        onUnhandledRequest: 'bypass', // Bypass all unhandled requests to let external APIs work
+        onUnhandledRequest: 'bypass',
+        serviceWorker: {
+          url: '/TalentFlow/mockServiceWorker.js',
+        },
       });
       console.log('MSW started successfully');
+    } catch (err) {
+      console.warn('MSW failed to start:', err);
     }
     
     console.log('App initialized successfully');
