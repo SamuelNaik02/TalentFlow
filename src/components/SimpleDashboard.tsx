@@ -583,7 +583,7 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 fontFamily: '"Montserrat", Arial, sans-serif',
                 fontWeight: '600'
               }}>
-                Hello <strong>{displayName}</strong>
+                Hello <strong style={{ color: '#F05A3C' }}>{displayName}</strong>
               </h1>
               <p style={{ 
                 fontSize: '16px', 
