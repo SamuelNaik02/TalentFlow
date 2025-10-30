@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 import type { Job, Candidate, Assessment, AssessmentResponse } from '../types';
 import { generateSeedData } from './seedDataGenerator';
+import { seedActivitiesIfEmpty } from '../services/activityService';
 
 // Database schema definition
 export class TalentFlowDB extends Dexie {
@@ -143,6 +144,8 @@ export async function initializeDatabase(): Promise<void> {
 
     // Run lightweight migrations
     await runMigrations();
+    // Ensure recent activities exist
+    try { await seedActivitiesIfEmpty(); } catch {}
   } catch (error) {
     console.error('Failed to initialize database:', error);
     throw error;
@@ -177,6 +180,9 @@ async function seedDatabase(): Promise<void> {
   console.log(`- ${jobs.length} jobs (mixed active/archived)`);
   console.log(`- ${candidates.length} candidates randomly assigned to jobs and stages`);
   console.log(`- ${assessments.length} assessments with 10+ questions each`);
+
+  // Seed recent activities if none exist
+  try { await seedActivitiesIfEmpty(); } catch {}
 }
 
 // Export the database instance and utilities

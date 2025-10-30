@@ -14,6 +14,17 @@ export interface Activity {
 class ActivityService {
   private activities: Activity[] = [];
 
+  constructor() {
+    // Load from localStorage if present
+    try {
+      const raw = localStorage.getItem('talentflow-activities');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) this.activities = parsed as Activity[];
+      }
+    } catch {}
+  }
+
   // Create a new activity
   createActivity(activity: Omit<Activity, 'id' | 'timestamp'>): Activity {
     const newActivity: Activity = {
@@ -28,6 +39,8 @@ class ActivityService {
     if (this.activities.length > 100) {
       this.activities = this.activities.slice(0, 100);
     }
+    // Persist
+    try { localStorage.setItem('talentflow-activities', JSON.stringify(this.activities)); } catch {}
     
     return newActivity;
   }
@@ -40,6 +53,7 @@ class ActivityService {
   // Clear all activities (for testing)
   clearActivities(): void {
     this.activities = [];
+    try { localStorage.removeItem('talentflow-activities'); } catch {}
   }
 }
 
@@ -112,3 +126,21 @@ export const createAssessmentActivity = (type: 'assessment_created' | 'assessmen
     entityType: 'assessment'
   });
 };
+
+// Optional seeding of activities if none exist
+export async function seedActivitiesIfEmpty(): Promise<void> {
+  if (activityService.getRecentActivities().length > 0) return;
+  try {
+    const { db } = await import('../db/database');
+    const [jobs, candidates, assessments] = await Promise.all([
+      db.jobs.limit(3).toArray(),
+      db.candidates.limit(2).toArray(),
+      db.assessments.limit(2).toArray()
+    ]);
+    if (jobs[0]) createJobActivity('job_created', jobs[0].title, jobs[0].id);
+    if (candidates[0]) createCandidateActivity('candidate_added', candidates[0].name, candidates[0].id);
+    if (jobs[1]) createJobActivity('job_updated', jobs[1].title, jobs[1].id);
+    if (assessments[0]) createAssessmentActivity('assessment_created', assessments[0].title, assessments[0].id);
+    if (candidates[1]) createCandidateActivity('candidate_stage_changed', candidates[1].name, candidates[1].id, 'screen');
+  } catch {}
+}

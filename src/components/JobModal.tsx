@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Plus, Trash2, Sparkles } from 'lucide-react';
 import type { Job } from '../types';
 import { apiCall } from '../services/api';
+import { createJobActivity } from '../services/activityService';
 import { generateJobFromDescription, type GeneratedJobDetails } from '../services/geminiService';
 import Stepper, { Step } from './Stepper';
 
@@ -914,6 +915,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                                 body: JSON.stringify(jobData)
                               });
 
+                              try { createJobActivity('job_created', savedJob.title, savedJob.id); } catch {}
                               onSave(savedJob);
                               onClose();
                             } catch (error) {
@@ -1525,11 +1527,13 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                                 method: 'PATCH',
                                 body: JSON.stringify(jobData)
                               });
+                              try { createJobActivity('job_updated', savedJob.title, savedJob.id); } catch {}
                             } else {
                               savedJob = await apiCall<Job>('/jobs', {
                                 method: 'POST',
                                 body: JSON.stringify(jobData)
                               });
+                              try { createJobActivity('job_created', savedJob.title, savedJob.id); } catch {}
                             }
 
                             onSave(savedJob);
