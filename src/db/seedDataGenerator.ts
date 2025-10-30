@@ -105,10 +105,10 @@ function generateJob(id: number): Job {
     salary: {
       min: 80000 + Math.floor(Math.random() * 100000),
       max: 150000 + Math.floor(Math.random() * 150000),
-      currency: 'INR'
+      currency: 'USD'
     },
-    createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
   };
 }
 
@@ -174,116 +174,133 @@ function generateAssessment(id: number, jobId: string, jobTitle: string): Assess
     {
       id: `section-${id}-1`,
       title: 'Technical Fundamentals',
+      order: 0,
       questions: [
         {
           id: `q${id}-1`,
           type: 'single-choice' as const,
           question: 'What is the difference between let and const?',
           required: true,
-          options: ['let allows reassignment, const does not', 'No difference', 'let is faster', 'const is deprecated']
+          options: ['let allows reassignment, const does not', 'No difference', 'let is faster', 'const is deprecated'],
+          order: 0
         },
         {
           id: `q${id}-2`,
           type: 'multi-choice' as const,
           question: 'Which of the following are JavaScript features?',
           required: true,
-          options: ['Arrow functions', 'Async/await', 'Promises', 'Type coercion']
+          options: ['Arrow functions', 'Async/await', 'Promises', 'Type coercion'],
+          order: 1
         },
         {
           id: `q${id}-3`,
           type: 'short-text' as const,
           question: 'Explain what a closure is in JavaScript.',
           required: true,
-          validation: { maxLength: 500 }
+          validation: { maxLength: 500 },
+          order: 2
         },
         {
           id: `q${id}-4`,
           type: 'long-text' as const,
           question: 'Describe the event loop in JavaScript and how it handles asynchronous code.',
           required: true,
-          validation: { maxLength: 1000 }
+          validation: { maxLength: 1000 },
+          order: 3
         },
         {
           id: `q${id}-5`,
           type: 'numeric' as const,
           question: 'What is the time complexity of binary search?',
           required: true,
-          validation: { min: 0, max: 100 }
+          validation: { min: 0, max: 100 },
+          order: 4
         }
       ]
     },
     {
       id: `section-${id}-2`,
       title: 'Framework Knowledge',
+      order: 1,
       questions: [
         {
           id: `q${id}-6`,
           type: 'single-choice' as const,
           question: 'What is the purpose of useEffect hook in React?',
           required: true,
-          options: ['To manage side effects', 'To render components', 'To handle events', 'To fetch data']
+          options: ['To manage side effects', 'To render components', 'To handle events', 'To fetch data'],
+          order: 0
         },
         {
           id: `q${id}-7`,
           type: 'multi-choice' as const,
           question: 'Which state management solutions are commonly used with React?',
           required: true,
-          options: ['Redux', 'Context API', 'MobX', 'Zustand']
+          options: ['Redux', 'Context API', 'MobX', 'Zustand'],
+          order: 1
         },
         {
           id: `q${id}-8`,
           type: 'short-text' as const,
           question: 'Explain the concept of virtual DOM in React.',
           required: true,
-          validation: { maxLength: 500 }
+          validation: { maxLength: 500 },
+          order: 2
         },
         {
           id: `q${id}-9`,
           type: 'long-text' as const,
           question: 'Describe how you would optimize a React application for better performance.',
           required: true,
-          validation: { maxLength: 1000 }
+          validation: { maxLength: 1000 },
+          order: 3
         },
         {
           id: `q${id}-10`,
           type: 'long-text' as const,
           question: 'Explain the difference between class components and functional components in React.',
           required: true,
-          validation: { maxLength: 1000 }
+          validation: { maxLength: 1000 },
+          order: 4
         },
         {
           id: `q${id}-11`,
           type: 'short-text' as const,
           question: 'What is the difference between props and state?',
           required: true,
-          validation: { maxLength: 300 }
+          validation: { maxLength: 300 },
+          order: 5
         },
         {
           id: `q${id}-12`,
           type: 'short-text' as const,
           question: 'How would you implement code splitting in a React application?',
           required: true,
-          validation: { maxLength: 500 }
+          validation: { maxLength: 500 },
+          order: 6
         }
       ]
     },
     {
       id: `section-${id}-3`,
       title: 'Problem Solving',
+      order: 2,
       questions: [
         {
           id: `q${id}-13`,
           type: 'long-text' as const,
           question: 'Describe a challenging problem you have solved and how you approached it.',
           required: true,
-          validation: { maxLength: 1000 }
+          validation: { maxLength: 1000 },
+          order: 0
         },
         {
           id: `q${id}-14`,
           type: 'short-text' as const,
           question: 'How do you stay updated with the latest technologies and best practices?',
           required: true,
-          validation: { maxLength: 500 }
+          validation: { maxLength: 500 },
+          order: 1
         }
       ]
     }
@@ -295,8 +312,8 @@ function generateAssessment(id: number, jobId: string, jobTitle: string): Assess
     title: `${jobTitle} Assessment`,
     description: `Comprehensive technical assessment for ${jobTitle} position`,
     sections,
-    createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
   };
 }
 
