@@ -334,7 +334,10 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                         fontFamily: '"Montserrat", Arial, sans-serif',
                         fontSize: '16px'
                       }}>
-                        {step}
+                        <span style={{
+                          color: currentAIStep >= step ? '#FFFFFF' : '#666666',
+                          WebkitTextFillColor: currentAIStep >= step ? '#FFFFFF' : '#666666'
+                        }}>{step}</span>
                       </div>
                       {step < 4 && (
                         <div style={{
