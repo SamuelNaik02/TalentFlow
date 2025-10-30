@@ -170,6 +170,11 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
     }
   };
 
+  const setNestedTextColor = (el: HTMLElement, selector: string, color: string) => {
+    const child = el.querySelector(selector) as HTMLElement | null;
+    if (child) child.style.color = color;
+  };
+
   return (
     <div style={{ 
       display: 'flex', 
@@ -290,14 +295,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -330,14 +337,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -370,14 +379,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -410,14 +421,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -450,14 +463,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -490,14 +505,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 
@@ -641,14 +658,16 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F06B4E';
-                    e.currentTarget.querySelector('h4').style.color = '#F06B4E';
-                    e.currentTarget.querySelector('p').style.color = '#F06B4E';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#222222';
-                    e.currentTarget.querySelector('h4').style.color = '#222222';
-                    e.currentTarget.querySelector('p').style.color = '#666666';
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
                   }}
                 >
                   <h4 style={{ 

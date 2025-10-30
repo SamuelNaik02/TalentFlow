@@ -964,6 +964,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
   };
 
   return (
+    <>
     <div className="assessments-page" style={{ 
       display: 'flex', 
       flexDirection: 'column', 
@@ -2272,6 +2273,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
         .assessments-hero p { font-size: 14px !important; }
       }
     `}</style>
+    </>
   );
 };
 

@@ -48,7 +48,7 @@ export async function generateJobFromDescription(description: string): Promise<G
   "salary": {
     "min": 80000,
     "max": 120000,
-    "currency": "INR"
+    "currency": "USD"
   },
   "tags": ["tag1", "tag2", "tag3", "tag4"]
 }
@@ -181,7 +181,7 @@ Generate a professional job posting JSON object:`;
           salary: {
             min: parsed.salary?.min || 50000,
             max: parsed.salary?.max || 100000,
-            currency: parsed.salary?.currency || 'INR'
+            currency: parsed.salary?.currency || 'USD'
           },
           tags: Array.isArray(parsed.tags) ? parsed.tags : []
         };

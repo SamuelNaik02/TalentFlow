@@ -21,7 +21,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
     location: '',
     salaryMin: '',
     salaryMax: '',
-    currency: 'INR',
+    currency: 'USD',
     tags: ['']
   });
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
         location: job.location || '',
         salaryMin: job.salary?.min?.toString() || '',
         salaryMax: job.salary?.max?.toString() || '',
-        currency: job.salary?.currency || 'INR',
+        currency: job.salary?.currency || 'USD',
         tags: job.tags.length > 0 ? job.tags : ['']
       });
     } else {
@@ -52,7 +52,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
         location: '',
         salaryMin: '',
         salaryMax: '',
-        currency: 'INR',
+        currency: 'USD',
         tags: ['']
       });
     }
@@ -136,50 +136,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      const jobData = {
-        title: formData.title.trim(),
-        slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
-        description: formData.description.trim(),
-        requirements: formData.requirements.filter(req => req.trim()),
-        location: formData.location.trim(),
-        salary: formData.salaryMin && formData.salaryMax ? {
-          min: parseInt(formData.salaryMin),
-          max: parseInt(formData.salaryMax),
-          currency: formData.currency
-        } : undefined,
-        tags: formData.tags.filter(tag => tag.trim()),
-        status: job?.status || 'active'
-      };
-
-      let savedJob: Job;
-      if (job) {
-        savedJob = await apiCall(`/jobs/${job.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(jobData)
-        });
-      } else {
-        savedJob = await apiCall('/jobs', {
-          method: 'POST',
-          body: JSON.stringify(jobData)
-        });
-      }
-
-      onSave(savedJob);
-      onClose();
-    } catch (error) {
-      console.error('Failed to save job:', error);
-      setErrors({ submit: 'Failed to save job. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // removed unused handleSubmit (submit handled inline in buttons)
 
   const addRequirement = () => {
     setFormData(prev => ({
@@ -952,7 +909,7 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                                 status: 'active'
                               };
 
-                              const savedJob = await apiCall('/jobs', {
+                              const savedJob = await apiCall<Job>('/jobs', {
                                 method: 'POST',
                                 body: JSON.stringify(jobData)
                               });
@@ -1053,7 +1010,8 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
                 stepCircleContainerClassName=""
                 contentClassName=""
                 footerClassName={currentManualStep === 4 ? "hide-footer" : ""}
-                onStepChange={(step) => setCurrentManualStep(step)}
+                onStepChange={(((newStep: number) => setCurrentManualStep(newStep)) as unknown) as () => void}
+                renderStepIndicator={undefined as any}
                 backButtonProps={{
                   style: {
                     background: 'none',
@@ -1563,12 +1521,12 @@ const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, onSave, job, useAI
 
                             let savedJob: Job;
                             if (job) {
-                              savedJob = await apiCall(`/jobs/${job.id}`, {
+                              savedJob = await apiCall<Job>(`/jobs/${job.id}`, {
                                 method: 'PATCH',
                                 body: JSON.stringify(jobData)
                               });
                             } else {
-                              savedJob = await apiCall('/jobs', {
+                              savedJob = await apiCall<Job>('/jobs', {
                                 method: 'POST',
                                 body: JSON.stringify(jobData)
                               });

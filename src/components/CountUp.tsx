@@ -1,6 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import { useInView, useMotionValue, useSpring } from 'motion/react';
 
+type CountUpProps = {
+  to: number;
+  from?: number;
+  direction?: string;
+  delay?: number;
+  duration?: number;
+  className?: string;
+  startWhen?: boolean;
+  separator?: string;
+  onStart?: () => void;
+  onEnd?: () => void;
+  decimals?: number;
+};
+
 export default function CountUp({
   to,
   from = 0,
@@ -11,8 +25,9 @@ export default function CountUp({
   startWhen = true,
   separator = '',
   onStart,
-  onEnd
-}) {
+  onEnd,
+  decimals
+}: CountUpProps) {
   const ref = useRef(null);
   const motionValue = useMotionValue(direction === 'down' ? to : from);
 
@@ -26,7 +41,7 @@ export default function CountUp({
 
   const isInView = useInView(ref, { once: true, margin: '0px' });
 
-  const getDecimalPlaces = num => {
+  const getDecimalPlaces = (num: number) => {
     const str = num.toString();
 
     if (str.includes('.')) {
@@ -40,7 +55,8 @@ export default function CountUp({
     return 0;
   };
 
-  const maxDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
+  const computedDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
+  const maxDecimals = typeof decimals === 'number' ? decimals : computedDecimals;
 
   useEffect(() => {
     if (ref.current) {

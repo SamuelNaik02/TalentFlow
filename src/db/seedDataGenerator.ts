@@ -62,13 +62,6 @@ const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'compan
 
 // Generate a random job
 function generateJob(id: number): Job {
-  const jobTitles = [
-    'Senior Frontend Developer', 'Backend Engineer', 'DevOps Engineer', 'Data Scientist', 'Product Manager',
-    'UX Designer', 'QA Engineer', 'System Architect', 'Mobile Developer', 'Security Engineer',
-    'Cloud Engineer', 'ML Engineer', 'Full Stack Developer', 'Frontend Developer', 'Backend Developer',
-    'Senior Backend Engineer', 'Senior DevOps Engineer', 'React Developer', 'Node.js Developer', 'Python Developer',
-    'Java Developer', 'Go Developer', 'Rust Developer', 'C++ Developer', 'Senior Data Engineer'
-  ];
   
   const locations = ['San Francisco, CA', 'New York, NY', 'Remote', 'London, UK', 'Toronto, Canada', 'Austin, TX', 'Seattle, WA'];
   const statuses: ('active' | 'archived')[] = ['active', 'archived'];
