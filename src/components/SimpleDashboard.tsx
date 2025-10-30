@@ -22,6 +22,10 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem('talentflow-user') || 'null') } catch { return null }
+  })();
+  const displayName = storedUser?.displayName || 'User';
   const [showContactBox, setShowContactBox] = useState(false);
 
   useEffect(() => {
@@ -579,15 +583,7 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 fontFamily: '"Montserrat", Arial, sans-serif',
                 fontWeight: '600'
               }}>
-                Hello <strong>admin</strong> (not admin? <button onClick={() => { onLogout(); navigate('/login'); }} style={{
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#1A3C34', 
-                  cursor: 'pointer', 
-                  textDecoration: 'underline',
-                  fontFamily: '"Montserrat", Arial, sans-serif',
-                  fontWeight: '500'
-                }}>Log out</button>)
+                Hello <strong>{displayName}</strong>
               </h1>
               <p style={{ 
                 fontSize: '16px', 
