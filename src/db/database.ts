@@ -140,6 +140,9 @@ export async function initializeDatabase(): Promise<void> {
     } else {
       console.log('Database already has complete seed data (25 jobs, 1000 candidates, 3 assessments)');
     }
+
+    // Run lightweight migrations
+    await runMigrations();
   } catch (error) {
     console.error('Failed to initialize database:', error);
     throw error;
@@ -178,3 +181,18 @@ async function seedDatabase(): Promise<void> {
 
 // Export the database instance and utilities
 export default db;
+
+// ----- Migrations -----
+async function runMigrations(): Promise<void> {
+  // Ensure any legacy jobs with INR are switched to USD to match current product default
+  const jobsNeedingUpdate = await db.jobs.where('id').above('').filter(j => j.salary?.currency === 'INR').toArray();
+  if (jobsNeedingUpdate.length > 0) {
+    console.log(`Migrating ${jobsNeedingUpdate.length} job(s) currency from INR to USD...`);
+    await db.transaction('rw', db.jobs, async () => {
+      for (const job of jobsNeedingUpdate) {
+        await db.jobs.update(job.id, { salary: { ...job.salary, currency: 'USD' } as any });
+      }
+    });
+    console.log('✓ Currency migration completed.');
+  }
+}
