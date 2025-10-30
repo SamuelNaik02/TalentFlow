@@ -520,6 +520,14 @@ body {
 }
 
 /* Responsive design */
+@media (max-width: 1200px) {
+  .App .hide-scrollbar { padding-left: 24px !important; padding-right: 24px !important; }
+}
+@media (max-width: 1024px) {
+  .App h1 { font-size: 26px !important; }
+  .App h2 { font-size: 20px !important; }
+  .App h3 { font-size: 16px !important; }
+}
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
@@ -539,4 +547,17 @@ body {
     height: 60vh;
     padding: 40px 20px;
   }
+
+  /* Generic mobile helpers used across pages */
+  .App button { padding: 10px 14px !important; font-size: 14px !important; }
+  .App input, .App select, .App textarea { font-size: 14px !important; }
+  .two-col, .assessments-two-col, .jobs-two-col, .pipeline-two-col { flex-direction: column !important; }
+  .sticky, .preview-panel { position: static !important; top: auto !important; width: 100% !important; }
+}
+
+@media (max-width: 480px) {
+  .App h1 { font-size: 22px !important; }
+  .App h2 { font-size: 18px !important; }
+  .App h3 { font-size: 15px !important; }
+  .grid, .assessments-grid, .cards-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 16px !important; }
 }
