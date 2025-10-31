@@ -7,6 +7,7 @@ import JobDetails from './components/JobDetails'
 import CandidateProfile from './components/CandidateProfile'
 import VirtualizedCandidatesList from './components/VirtualizedCandidatesList'
 import CandidatesPipeline from './components/CandidatesPipeline'
+import CandidatesListPage from './components/CandidatesListPage'
 import AssessmentBuilder from './components/AssessmentBuilder'
 import AssessmentsList from './components/AssessmentsList'
 import AnalyticsReports from './components/AnalyticsReports'
@@ -108,6 +109,16 @@ function App() {
             } 
           />
           <Route 
+            path="/candidates-list-page" 
+            element={
+              isLoggedIn ? (
+                <CandidatesListPage onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
             path="/assessments" 
             element={
               isLoggedIn ? (
@@ -165,7 +176,7 @@ function App() {
               ) : (
                 <Navigate to="/login" replace />
               )
-            }
+            } 
           />
           <Route 
             path="/" 

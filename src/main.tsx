@@ -13,10 +13,20 @@ const initializeApp = async () => {
     // Start MSW in all environments (needed for GitHub Pages demo where API is mocked)
     try {
       const { worker } = await import('./mocks/browser');
+      // Use root path for local development, base path for GitHub Pages
+      const isDev = import.meta.env.DEV;
+      const baseUrl = import.meta.env.BASE_URL || './';
+      // In dev mode, always use root path; in production use base path
+      const workerUrl = isDev 
+        ? '/mockServiceWorker.js'
+        : (baseUrl === './' || baseUrl === '/') 
+          ? '/mockServiceWorker.js' 
+          : `${baseUrl}mockServiceWorker.js`.replace(/\/\//g, '/');
+      
       await worker.start({
         onUnhandledRequest: 'bypass',
         serviceWorker: {
-          url: '/TalentFlow/mockServiceWorker.js',
+          url: workerUrl,
         },
       });
       console.log('MSW started successfully');

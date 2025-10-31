@@ -327,6 +327,48 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
                   </p>
                 </div>
 
+                {/* Candidates */}
+                <div 
+                  onClick={() => navigate('/candidates-list-page')}
+                  style={{
+                    padding: '16px 0',
+                    borderBottom: '1px solid #E0E0E0',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#F06B4E';
+                    setNestedTextColor(t, 'h4', '#F06B4E');
+                    setNestedTextColor(t, 'p', '#F06B4E');
+                  }}
+                  onMouseLeave={(e) => {
+                    const t = e.currentTarget as HTMLElement;
+                    t.style.color = '#222222';
+                    setNestedTextColor(t, 'h4', '#222222');
+                    setNestedTextColor(t, 'p', '#666666');
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#222222', 
+                    margin: '0 0 6px 0',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    Candidates
+                  </h4>
+                  <p style={{ 
+                    fontSize: '13px', 
+                    color: '#666666', 
+                    margin: '0',
+                    lineHeight: '1.4',
+                    transition: 'color 0.3s ease'
+                  }}>
+                    View and manage all candidates with search and filters.
+                  </p>
+                </div>
+
                 {/* Candidate Pipeline */}
                 <div 
                   onClick={() => navigate('/candidates')}

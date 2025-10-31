@@ -11,6 +11,7 @@ A comprehensive React-based hiring platform for HR teams to manage jobs, candida
 ## 🚀 Features
 
 - **Jobs Management** - Create, edit, archive, and reorder job postings
+- **Candidates** - View and manage all candidates with advanced search and filters
 - **Candidates Pipeline** - Kanban board with drag-and-drop for candidate stages
 - **Assessment Builder** - Create custom assessments with multiple question types
 - **Assessments List** - View and manage all assessments
@@ -150,6 +151,14 @@ talentflow/
 - ✅ Pagination support
 - ✅ Job archiving
 - ✅ Reorder job listings
+
+### Candidates
+- ✅ Comprehensive candidates list with search functionality
+- ✅ Advanced filtering by stage (Applied, Screening, Interview, Offer, Hired, Rejected)
+- ✅ Search by candidate name or email
+- ✅ Results count display
+- ✅ Candidate details modal with timeline and notes
+- ✅ View eye icon for quick access to candidate information
 
 ### Candidates Pipeline
 - ✅ Kanban board with drag-and-drop
