@@ -177,7 +177,6 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 position: 'absolute',
                 top: '100%',
                 left: '0',
-                marginTop: '8px',
                 background: 'white',
                 border: '1px solid #E0E0E0',
                 borderRadius: '8px',
@@ -185,9 +184,8 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 padding: '20px',
                 width: '500px',
                 zIndex: 1000,
-                maxHeight: 'calc(100vh - 120px)',
-                overflowY: 'auto',
-                overflowX: 'hidden'
+                maxHeight: '80vh',
+                overflowY: 'auto'
               }}>
                 <h3 style={{
                   fontSize: '18px',
