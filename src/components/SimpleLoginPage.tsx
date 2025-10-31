@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import Shuffle from './Shuffle';
 import LightRays from './LightRays';
 import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword, getGoogleRedirectResult } from '../services/authService';
@@ -15,6 +16,7 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -541,23 +543,52 @@ const SimpleLoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
               }}>
                 Password *
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '1px solid #E0E0E0',
-                  background: '#F5F5F5',
-                  borderRadius: '4px',
-                  fontSize: '16px',
-                  color: '#222222',
-                  fontFamily: '"Roboto Slab", Georgia, "Times New Roman", serif',
-             fontWeight: '200'
-                }}
-                required
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 45px 12px 16px',
+                    border: '1px solid #E0E0E0',
+                    background: '#F5F5F5',
+                    borderRadius: '4px',
+                    fontSize: '16px',
+                    color: '#222222',
+                    fontFamily: '"Roboto Slab", Georgia, "Times New Roman", serif',
+                    fontWeight: '200'
+                  }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '4px',
+                    color: '#666666',
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#1A3C34';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#666666';
+                  }}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             {activeTab === 'signin' && (
