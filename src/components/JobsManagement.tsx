@@ -321,10 +321,14 @@ const JobCard: React.FC<JobCardProps> = ({
               fontWeight: 600
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = job.status === 'archived' ? '#E8F5E8' : '#FDEAE6';
+              e.currentTarget.style.background = '#E8F5E8';
+              e.currentTarget.style.borderColor = '#1A3C34';
+              e.currentTarget.style.color = '#1A3C34';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'white';
+              e.currentTarget.style.borderColor = job.status === 'archived' ? '#28A745' : '#F05A3C';
+              e.currentTarget.style.color = job.status === 'archived' ? '#28A745' : '#F05A3C';
             }}
           >
             {job.status === 'archived' ? 'Unarchive' : 'Archive'}
@@ -1054,10 +1058,12 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(240, 90, 60, 0.3)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, #1A3C34 0%, #2d5a4f 100%)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(26, 60, 52, 0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, #F05A3C 0%, #e04a2b 100%)';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
@@ -1088,9 +1094,9 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                   outline: 'none'
                 }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#F05A3C';
+                    e.target.style.borderColor = '#1A3C34';
                     e.target.style.background = 'white';
-                    e.target.style.boxShadow = '0 0 0 4px rgba(240, 90, 60, 0.1)';
+                    e.target.style.boxShadow = '0 0 0 4px rgba(26, 60, 52, 0.1)';
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = '#E0E0E0';
@@ -1118,7 +1124,28 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 14px center',
                 paddingRight: '44px',
-                outline: 'none'
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1A3C34';
+                e.currentTarget.style.background = 'white';
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(26, 60, 52, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#E0E0E0';
+                e.currentTarget.style.background = '#F8F9FA';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#1A3C34';
+                e.currentTarget.style.background = 'white';
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(26, 60, 52, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#E0E0E0';
+                e.currentTarget.style.background = '#F8F9FA';
+                e.currentTarget.style.boxShadow = 'none';
               }}
               >
                 <option value="">All Status</option>
@@ -1144,7 +1171,28 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 14px center',
                 paddingRight: '44px',
-                outline: 'none'
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1A3C34';
+                e.currentTarget.style.background = 'white';
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(26, 60, 52, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#E0E0E0';
+                e.currentTarget.style.background = '#F8F9FA';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#1A3C34';
+                e.currentTarget.style.background = 'white';
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(26, 60, 52, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#E0E0E0';
+                e.currentTarget.style.background = '#F8F9FA';
+                e.currentTarget.style.boxShadow = 'none';
               }}
               >
                 <option value="order">Order</option>
@@ -1257,8 +1305,8 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                 }}
                 onMouseEnter={(e) => {
                         if (currentPage !== 1) {
-                          e.currentTarget.style.borderColor = '#F05A3C';
-                          e.currentTarget.style.color = '#F05A3C';
+                          e.currentTarget.style.borderColor = '#1A3C34';
+                          e.currentTarget.style.color = '#1A3C34';
                         }
                 }}
                 onMouseLeave={(e) => {
@@ -1296,8 +1344,8 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                       }}
                       onMouseEnter={(e) => {
                         if (currentPage !== totalPages) {
-                          e.currentTarget.style.borderColor = '#F05A3C';
-                          e.currentTarget.style.color = '#F05A3C';
+                          e.currentTarget.style.borderColor = '#1A3C34';
+                          e.currentTarget.style.color = '#1A3C34';
                         }
                       }}
                       onMouseLeave={(e) => {
