@@ -170,22 +170,25 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
               </svg>
             </button>
             {showServicesDropdown && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: '0',
-                marginTop: '4px',
-                background: 'white',
-                border: '1px solid #E0E0E0',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                padding: '20px',
-                width: '500px',
-                zIndex: 10000,
-                maxHeight: '75vh',
-                overflowY: 'auto',
-                overflowX: 'hidden'
-              }}>
+              <div 
+                onMouseEnter={() => setShowServicesDropdown(true)}
+                onMouseLeave={() => setShowServicesDropdown(false)}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '0',
+                  marginTop: '4px',
+                  background: 'white',
+                  border: '1px solid #E0E0E0',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  padding: '20px',
+                  width: '500px',
+                  zIndex: 10000,
+                  maxHeight: '75vh',
+                  overflowY: 'auto',
+                  overflowX: 'hidden'
+                }}>
                 <h3 style={{ 
                   fontSize: '18px', 
                   fontWeight: 'bold', 
