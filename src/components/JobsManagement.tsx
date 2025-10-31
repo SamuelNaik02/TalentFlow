@@ -478,7 +478,10 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        position: 'relative',
+        zIndex: 1000,
+        overflow: 'visible'
       }}>
         <div
           onClick={() => navigate('/dashboard')}
@@ -522,10 +525,10 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
           }}></div>
         </div>
         
-         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative', overflow: 'visible' }}>
           {/* Services Dropdown */}
           <div 
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', overflow: 'visible' }}
             onMouseEnter={() => setShowServicesDropdown(true)}
             onMouseLeave={() => setShowServicesDropdown(false)}
           >
@@ -550,7 +553,7 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
             {showServicesDropdown && (
               <div style={{
                 position: 'absolute',
-                top: '100%',
+                top: 'calc(100% + 4px)',
                 left: '0',
                 background: 'white',
                 border: '1px solid #E0E0E0',
@@ -558,9 +561,10 @@ const JobsManagement: React.FC<JobsManagementProps> = ({ onLogout }) => {
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                 padding: '20px',
                 width: '500px',
-                zIndex: 1000,
-                maxHeight: '80vh',
-                overflowY: 'auto'
+                zIndex: 10000,
+                maxHeight: '75vh',
+                overflowY: 'auto',
+                overflowX: 'hidden'
               }}>
                 <h3 style={{ 
                   fontSize: '18px', 
