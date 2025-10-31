@@ -264,21 +264,24 @@ const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ onLogout }) => {
             </button>
             
             {showServicesDropdown && (
-               <div style={{
-                 position: 'absolute',
-                 top: 'calc(100% + 4px)',
-                 left: '0',
-                 background: 'white',
-                 border: '1px solid #E0E0E0',
-                 borderRadius: '8px',
-                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                 padding: '20px',
-                 width: '500px',
-                 zIndex: 10000,
-                 maxHeight: '75vh',
-                 overflowY: 'auto',
-                 overflowX: 'hidden'
-               }}>
+               <div 
+                 onMouseEnter={() => setShowServicesDropdown(true)}
+                 onMouseLeave={() => setShowServicesDropdown(false)}
+                 style={{
+                   position: 'absolute',
+                   top: 'calc(100% + 4px)',
+                   left: '0',
+                   background: 'white',
+                   border: '1px solid #E0E0E0',
+                   borderRadius: '8px',
+                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                   padding: '20px',
+                   width: '500px',
+                   zIndex: 10000,
+                   maxHeight: '75vh',
+                   overflowY: 'auto',
+                   overflowX: 'hidden'
+                 }}>
                 <h3 style={{ 
                   fontSize: '18px', 
                   fontWeight: 'bold', 
