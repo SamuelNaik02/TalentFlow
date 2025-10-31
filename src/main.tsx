@@ -15,13 +15,24 @@ const initializeApp = async () => {
       const { worker } = await import('./mocks/browser');
       // Use root path for local development, base path for GitHub Pages
       const isDev = import.meta.env.DEV;
-      const baseUrl = import.meta.env.BASE_URL || './';
-      // In dev mode, always use root path; in production use base path
-      const workerUrl = isDev 
-        ? '/mockServiceWorker.js'
-        : (baseUrl === './' || baseUrl === '/') 
+      
+      // Detect GitHub Pages environment
+      const isGitHubPages = window.location.hostname === 'samuelnaik02.github.io';
+      
+      let workerUrl: string;
+      if (isDev) {
+        // Local development: use root path
+        workerUrl = '/mockServiceWorker.js';
+      } else if (isGitHubPages) {
+        // GitHub Pages: use /TalentFlow/ base path
+        workerUrl = '/TalentFlow/mockServiceWorker.js';
+      } else {
+        // Other production environments: use base URL
+        const baseUrl = import.meta.env.BASE_URL || './';
+        workerUrl = (baseUrl === './' || baseUrl === '/') 
           ? '/mockServiceWorker.js' 
           : `${baseUrl}mockServiceWorker.js`.replace(/\/\//g, '/');
+      }
       
       await worker.start({
         onUnhandledRequest: 'bypass',
