@@ -1069,13 +1069,17 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
                 position: 'absolute',
                 top: '100%',
                 left: '0',
+                marginTop: '8px',
                 background: 'white',
                 border: '1px solid #E0E0E0',
                 borderRadius: '8px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                 padding: '20px',
-                minWidth: '400px',
-                zIndex: 1000
+                width: '500px',
+                zIndex: 1000,
+                maxHeight: 'calc(100vh - 120px)',
+                overflowY: 'auto',
+                overflowX: 'hidden'
               }}>
                 <h3 style={{ 
                   fontSize: '18px', 

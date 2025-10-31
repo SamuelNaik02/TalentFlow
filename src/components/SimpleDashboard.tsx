@@ -123,6 +123,7 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                  position: 'absolute',
                  top: '100%',
                  left: '0',
+                 marginTop: '8px',
                  background: 'white',
                  border: '1px solid #E0E0E0',
                  borderRadius: '8px',
@@ -130,8 +131,9 @@ const SimpleDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                  padding: '20px',
                  width: '500px',
                  zIndex: 1000,
-                 maxHeight: '80vh',
-                 overflowY: 'auto'
+                 maxHeight: 'calc(100vh - 120px)',
+                 overflowY: 'auto',
+                 overflowX: 'hidden'
                }}>
                 <h3 style={{ 
                   fontSize: '18px', 
