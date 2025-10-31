@@ -87,6 +87,7 @@ talentflow/
 │   │   ├── Dashboard.tsx
 │   │   ├── JobsManagement.tsx
 │   │   ├── JobModal.tsx
+│   │   ├── CandidatesListPage.tsx
 │   │   ├── CandidatesPipeline.tsx
 │   │   ├── AssessmentBuilder.tsx
 │   │   ├── AssessmentsList.tsx
