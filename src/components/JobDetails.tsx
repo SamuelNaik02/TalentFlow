@@ -125,55 +125,27 @@ const JobDetails: React.FC = () => {
           {/* Header Section */}
           <div style={{ marginBottom: '32px' }}>
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
               marginBottom: '16px'
             }}>
-              <div style={{ flex: 1 }}>
-                <h1 style={{
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  color: '#222222',
-                  margin: '0 0 12px 0',
-                  fontFamily: '"Montserrat", Arial, sans-serif'
+              <h1 style={{
+                fontSize: '32px',
+                fontWeight: 'bold',
+                color: '#222222',
+                margin: '0 0 12px 0',
+                fontFamily: '"Montserrat", Arial, sans-serif'
+              }}>
+                {job.title}
+              </h1>
+              {job.description && (
+                <p style={{
+                  fontSize: '16px',
+                  color: '#666666',
+                  lineHeight: '1.6',
+                  margin: '0 0 20px 0'
                 }}>
-                  {job.title}
-                </h1>
-                {job.description && (
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#666666',
-                    lineHeight: '1.6',
-                    margin: '0 0 20px 0'
-                  }}>
-                    {job.description}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={() => navigate(`/jobs?edit=${job.id}`)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#F05A3C',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  fontFamily: 'Arial, sans-serif',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#E04A2C';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#F05A3C';
-                }}
-              >
-                Edit Job
-              </button>
+                  {job.description}
+                </p>
+              )}
             </div>
 
             {/* Job Meta Information */}
