@@ -1045,7 +1045,7 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative', overflow: 'visible' }}>
           {/* Services Dropdown */}
           <div 
-            style={{ position: 'relative', overflow: 'visible' }}
+            style={{ position: 'relative' }}
             onMouseEnter={() => setShowServicesDropdown(true)}
             onMouseLeave={() => setShowServicesDropdown(false)}
           >
@@ -1068,25 +1068,21 @@ const AssessmentBuilder: React.FC<{ onLogout: () => void }> = ({ onLogout }) => 
             </button>
             
             {showServicesDropdown && (
-              <div 
-                onMouseEnter={() => setShowServicesDropdown(true)}
-                onMouseLeave={() => setShowServicesDropdown(false)}
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '0',
-                  marginTop: '4px',
-                  background: 'white',
-                  border: '1px solid #E0E0E0',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  padding: '20px',
-                  width: '500px',
-                  zIndex: 10000,
-                  maxHeight: '75vh',
-                  overflowY: 'auto',
-                  overflowX: 'hidden'
-                }}>
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: '0',
+                background: 'white',
+                border: '1px solid #E0E0E0',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                padding: '20px',
+                width: '500px',
+                zIndex: 1000,
+                maxHeight: '75vh',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}>
                 <h3 style={{ 
                   fontSize: '18px', 
                   fontWeight: 'bold', 
