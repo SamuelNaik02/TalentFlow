@@ -530,6 +530,20 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
             )}
           </div>
 
+          <button style={{ 
+            background: '#F5EDE0', 
+            color: '#1A3C34', 
+            padding: '8px 16px', 
+            border: 'none', 
+            borderRadius: '6px', 
+            fontSize: '14px', 
+            fontWeight: '500', 
+            cursor: 'pointer',
+            fontFamily: '"Montserrat", Arial, sans-serif'
+          }}>
+            Join our team!
+          </button>
+
           {/* My Account Dropdown */}
           <div
             style={{ position: 'relative' }}
