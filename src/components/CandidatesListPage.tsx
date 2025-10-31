@@ -176,24 +176,22 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
             </button>
 
             {showServicesDropdown && (
-              <div 
-                onMouseEnter={() => setShowServicesDropdown(true)}
-                onMouseLeave={() => setShowServicesDropdown(false)}
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 4px)',
-                  left: '0',
-                  background: 'white',
-                  border: '1px solid #E0E0E0',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  padding: '20px',
-                  width: '500px',
-                  zIndex: 10000,
-                  maxHeight: '75vh',
-                  overflowY: 'auto',
-                  overflowX: 'hidden'
-                }}>
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: '0',
+                marginTop: '4px',
+                background: 'white',
+                border: '1px solid #E0E0E0',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                padding: '20px',
+                width: '500px',
+                zIndex: 10000,
+                maxHeight: '75vh',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}>
                 <h3 style={{
                   fontSize: '18px',
                   fontWeight: 'bold',
@@ -600,9 +598,17 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                 }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#222222';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
                   }}
                 >
                   <h4 style={{
@@ -610,7 +616,8 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                     fontWeight: 'bold',
                     color: '#222222',
                     margin: '0 0 6px 0',
-                    fontFamily: 'Arial, sans-serif'
+                    fontFamily: 'Arial, sans-serif',
+                    transition: 'color 0.3s ease'
                   }}>
                     Profile Settings
                   </h4>
@@ -618,7 +625,8 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                     fontSize: '13px',
                     color: '#666666',
                     margin: '0',
-                    fontFamily: 'Arial, sans-serif'
+                    fontFamily: 'Arial, sans-serif',
+                    transition: 'color 0.3s ease'
                   }}>
                     Update your personal information and preferences.
                   </p>
@@ -633,9 +641,17 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#F06B4E';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#F06B4E';
+                    if (p) p.style.color = '#F06B4E';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.color = '#222222';
+                    const h4 = e.currentTarget.querySelector('h4');
+                    const p = e.currentTarget.querySelector('p');
+                    if (h4) h4.style.color = '#222222';
+                    if (p) p.style.color = '#666666';
                   }}
                 >
                   <h4 style={{
@@ -643,7 +659,8 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                     fontWeight: 'bold',
                     color: '#222222',
                     margin: '0 0 6px 0',
-                    fontFamily: 'Arial, sans-serif'
+                    fontFamily: 'Arial, sans-serif',
+                    transition: 'color 0.3s ease'
                   }}>
                     Logout
                   </h4>
@@ -651,7 +668,8 @@ const CandidatesListPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) =>
                     fontSize: '13px',
                     color: '#666666',
                     margin: '0',
-                    fontFamily: 'Arial, sans-serif'
+                    fontFamily: 'Arial, sans-serif',
+                    transition: 'color 0.3s ease'
                   }}>
                     Sign out of your account.
                   </p>
